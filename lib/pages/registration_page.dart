@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/blocs/auth_form_bloc.dart';
 import 'package:flutter_app_pinhome/providers/provider.dart';
 
-class AuthPage extends StatelessWidget {
+class RegistrationPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AuthFormBloc formBloc = Provider.of(context);
@@ -63,12 +63,12 @@ class AuthPage extends StatelessWidget {
                       print(snapshot.error);
                       return null;
                     }
-                    bloc.login(context);
+                    bloc.register(context);
                   },
                   color: Colors.amber[300],
                   shape: RoundedRectangleBorder(
                       borderRadius: new BorderRadius.circular(10.0)),
-                  child: Text('Войти',
+                  child: Text('Зарегистрироваться',
                       textDirection: TextDirection.ltr,
                       style: TextStyle(
                           decoration: TextDecoration.none,
@@ -114,7 +114,7 @@ class TextAuth extends StatelessWidget {
     return Container(
         alignment: Alignment.center,
         margin: EdgeInsets.only(top: 70),
-        child: Text('Авторизация',
+        child: Text('Регистрация',
             textDirection: TextDirection.ltr,
             style: TextStyle(
                 decoration: TextDecoration.none,

@@ -2,8 +2,6 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_pinhome/blocs/form_bloc.dart';
-import 'package:flutter_app_pinhome/providers/provider.dart';
 
 class LoginPage extends StatelessWidget {
   @override
@@ -46,7 +44,9 @@ class LoginPage extends StatelessWidget {
                 height: 40,
                 child: RaisedButton(
                   // padding: EdgeInsets.all(50),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/RegPage');
+                  },
                   color: Colors.white,
                   shape: RoundedRectangleBorder(
                       side: BorderSide(width: 3, color: Colors.amber[300]),

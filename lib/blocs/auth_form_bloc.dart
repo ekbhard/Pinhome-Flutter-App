@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/services/auth_service.dart';
@@ -7,15 +6,15 @@ import 'package:rxdart/rxdart.dart';
 
 import '../mixins/validation_mixin.dart';
 
-class FormBloc with ValidationMixin {
-  final _email = new BehaviorSubject<String>();
+class AuthFormBloc with ValidationMixin {
+  final _username = new BehaviorSubject<String>();
   final _password = new BehaviorSubject<String>();
   final _errorMessage = new BehaviorSubject<String>();
 
   // getters: Changers
-  Function(String) get changeEmail {
+  Function(String) get changeUsername {
     addError(null);
-    return _email.sink.add;
+    return _username.sink.add;
   }
 
   Function(String) get changePassword {
@@ -24,32 +23,32 @@ class FormBloc with ValidationMixin {
   }
 
   Function(String) get addError => _errorMessage.sink.add;
+
   // getters: Add stream
-  Stream<String> get email => _email.stream.transform(validatorEmail);
+  Stream<String> get username => _username.stream.transform(validatorEmail);
+
   Stream<String> get password => _password.stream.transform(validatorPassword);
+
   Stream<String> get errorMessage => _errorMessage.stream;
 
   Stream<bool> get submitValidForm => Rx.combineLatest3(
-        email,
+        username,
         password,
         errorMessage,
         (e, p, er) => true,
       );
 
   var authInfo;
-  // rgister
+
   dynamic register(BuildContext context) async {
     authInfo = AuthService();
 
-    final res = await authInfo.register(_email.value, _password.value);
-    final data = jsonDecode(res) as Map<String, dynamic>;
+    final res = await authInfo.register(_username.value, _password.value);
 
-    if (data['status'] != 200) {
-      addError(data['message']);
+    if (res['status'] != 201) {
+      addError(res['message']);
     } else {
-      AuthService.setToken(data['token'], data['refreshToken']);
-      Navigator.pushNamed(context, '/home');
-      return data;
+      Navigator.pushNamed(context, '/AuthPage');
     }
   }
 
@@ -57,21 +56,19 @@ class FormBloc with ValidationMixin {
   dynamic login(BuildContext context) async {
     authInfo = AuthService();
 
-    final res = await authInfo.login(_email.value, _password.value);
-    final data = jsonDecode(res) as Map<String, dynamic>;
-
-    if (data['status'] != 200) {
-      addError(data['message']);
+    final Map<Object, Object> res =
+        await authInfo.login(_username.value, _password.value);
+    if (res['status'] != 200) {
+      addError(res['message']);
     } else {
-      AuthService.setToken(data['token'], data['refreshToken']);
-      Navigator.pushNamed(context, '/home');
-      return data;
+      AuthService.setToken(res['cookies']);
+      Navigator.pushNamed(context, '/PersonPage');
     }
   }
 
   // close streams
   dispose() {
-    _email.close();
+    _username.close();
     _password.close();
     _errorMessage.close();
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../blocs/form_bloc.dart';
+import '../blocs/auth_form_bloc.dart';
 
 class Provider extends InheritedWidget {
-  final bloc = new FormBloc();
+  final bloc = new AuthFormBloc();
   // constructor, forward to Parent InheritedWidget
   Provider({Key key, Widget child}) : super(key: key, child: child);
 
@@ -13,7 +13,7 @@ class Provider extends InheritedWidget {
     return true;
   }
 
-  static FormBloc of(BuildContext context) {
+  static AuthFormBloc of(BuildContext context) {
     return (context.inheritFromWidgetOfExactType(Provider) as Provider).bloc;
   }
 }

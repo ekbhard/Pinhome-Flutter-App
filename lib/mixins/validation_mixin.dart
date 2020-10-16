@@ -13,12 +13,12 @@ class ValidationMixin {
       // } else {
       //   sink.add(email);
       // }
-      if (ValidationMixin()._validateEmail(email)) {
-        sink.addError('Emmail is not valid');
-      } else {
+      // if (ValidationMixin()._validateEmail(email)) {
+      //   sink.addError('Emmail is not valid');
+      // } else {
         sink.add(email);
       }
-    },
+    // },
   );
 
   final validatorPassword = new StreamTransformer<String, String>.fromHandlers(
@@ -40,6 +40,18 @@ class ValidationMixin {
     if (regExp.hasMatch(email)) {
       return false;
     }
+    return true;
+  }
+
+  bool _validateName(String name) {
+    // var regExp = new RegExp(
+    //     r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+");
+    // if (name.isEmpty) {
+    //   return false;
+    // }
+    // if (regExp.hasMatch(name)) {
+    //   return false;
+    // }
     return true;
   }
 

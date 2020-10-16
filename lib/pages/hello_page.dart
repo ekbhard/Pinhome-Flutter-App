@@ -7,9 +7,6 @@ class HelloPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Пврапа"),
-        shadowColor: Colors.white,),
         body: Center(
       child: Container(
         padding: EdgeInsets.only(left: 10.0, top: 40.0),

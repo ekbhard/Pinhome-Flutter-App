@@ -1,67 +1,59 @@
+import 'package:flutter_app_pinhome/services/utills.dart';
 import 'package:flutter_session/flutter_session.dart';
-import 'package:http/http.dart' as http;
 
 class AuthService {
   final baseUrl = 'https://pin-home.herokuapp.com';
+
   // ignore: non_constant_identifier_names
   static final SESSION = FlutterSession();
 
-  Future<dynamic> register(String email, String password) async {
+  Future<dynamic> register(String username, String password) async {
+    Map<String, String> body = {'username': username, 'password': password};
     try {
-      var res = await http.post('$baseUrl/auth/register', body: {
-        'email': email,
-        'password': password,
-      });
-
-      return res?.body;
+      Future<Map<Object, Object>> res =
+          Utills.postRequest('/authorization/sign_up', body);
+      return res;
     } finally {
       // done you can do something here
     }
   }
 
-  Future<dynamic> login(String email, String password) async {
+  Future<dynamic> login(String username, String password) async {
+    Map<String, String> body = {'username': username, 'password': password};
     try {
-      var res = await http.post(
-        '$baseUrl/auth/login',
-        body: {
-          'email': email,
-          'password': password,
-          'token': 'SdxIpaQp!81XS#QP5%w^cTCIV*DYr',
-        },
-      );
-
-      return res?.body;
+      Future<Map<Object, Object>> res =
+          Utills.postRequest('/authorization/sign_in', body);
+      return res;
     } finally {
       // you can do somethig here
     }
   }
 
-  static setToken(String token, String refreshToken) async {
-    _AuthData data = _AuthData(token, refreshToken);
-    await SESSION.set('tokens', data);
+  static setToken(String token) async {
+    _AuthData data = _AuthData(token);
+    await SESSION.set('cookie', data.cookie);
   }
 
   static Future<Map<String, dynamic>> getToken() async {
-    return await SESSION.get('tokens');
+    return await SESSION.get('cookie');
   }
 
-  static removeToken()async {
+  static removeToken() async {
     await SESSION.prefs.clear();
   }
 }
 
 class _AuthData {
-  String token, refreshToken, clientId;
-  _AuthData(this.token, this.refreshToken, {this.clientId});
+  String cookie;
+
+  _AuthData(this.cookie);
 
   // toJson
   // required by Session lib
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = Map<String, dynamic>();
 
-    data['token'] = token;
-    data['refreshToken'] = refreshToken;
-    data['clientId'] = clientId;
+    data['cookie'] = cookie;
     return data;
   }
 }
