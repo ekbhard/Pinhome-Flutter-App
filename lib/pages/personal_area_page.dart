@@ -2,167 +2,191 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_pinhome/blocs/auth_form_bloc.dart';
-import 'package:flutter_app_pinhome/blocs/personal_area_form_bloc.dart';
-import 'package:flutter_app_pinhome/providers/personal_area_provider.dart';
-import 'package:flutter_app_pinhome/providers/provider.dart';
+import 'package:flutter_app_pinhome/api/api_personal_area_service.dart';
+import 'package:flutter_app_pinhome/model/personal_area_model.dart';
+import 'package:image_picker/image_picker.dart';
 
-class PersonalAreaPage extends StatelessWidget {
+class PersonalAreaPage extends StatefulWidget {
+  @override
+  _PersonalAreaPageState createState() => _PersonalAreaPageState();
+}
+
+class _PersonalAreaPageState extends State<PersonalAreaPage> {
+  GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
+  bool isApiCallProcess = false;
+  PersonalAreaRequestModel personalAreaRequestModel;
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+  PersonalAreaService personalAreaService;
+
+  @override
+  void initState() {
+    super.initState();
+    personalAreaRequestModel = new PersonalAreaRequestModel();
+    personalAreaService = new PersonalAreaService();
+  }
+
+  // @override
+  // Widget build(BuildContext context) {
+  //   return (
+  //     child: _uiSetup(context),
+  //     inAsyncCall: isApiCallProcess,
+  //     opacity: 0.3,
+  //   );
+  // }
 
   @override
   Widget build(BuildContext context) {
-    // final PersonalAreaFormBloc formBloc = PersonalAreaProvider.of(context);
-
     return Scaffold(
+        key: scaffoldKey,
         appBar: AppBar(),
         body: Center(
-          child: Container(
-            alignment: Alignment.center,
-            color: Colors.white,
+            child: Container(
+          alignment: Alignment.center,
+          color: Colors.white,
+          child: Form(
+            key: globalFormKey,
             child: ListView(
               // mainAxisAlignment: MainAxisAlignment.center,
               // crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 LogoImage(),
                 TextAuth(),
-                _usernameField(),
-                _passwordField(),
-                _buttonField()
+                new TextFormField(
+                  onSaved: (input) => personalAreaRequestModel.name = input,
+                  keyboardType: TextInputType.name,
+                  decoration: const InputDecoration(
+                      contentPadding: const EdgeInsets.all(20.0),
+                      labelText: 'Имя'),
+                ),
+                _surnameField(),
+                _patronymicField(),
+                _geolocationField(),
+                _emailField(),
+                _phoneNumberField(),
+                FloatingActionButton(
+                  onPressed: () async {
+                    var file = await ImagePicker.pickImage(
+                        source: ImageSource.gallery);
+                    personalAreaRequestModel.file = file.path;
+                    // var res = await uploadImage(file.path, widget.url);
+                    // setState(() {
+                    //   state = res;
+                    //   print(res);
+                    // });
+                  },
+                  child: Icon(Icons.add_a_photo),
+                ),
+                _buttonField(),
               ],
             ),
           ),
-        ));
+        )));
   }
 
   Widget _usernameField() {
-      // return StreamBuilder<String>(
-      //     stream: bloc.name,
-      //     builder: (context, snapshot) {
-            return TextField(
-              keyboardType: TextInputType.name,
-              decoration: const InputDecoration(
-                  icon: Icon(Icons.account_box),
-                  contentPadding: const EdgeInsets.all(20.0),
-                  labelText: 'Имя'),
-              // onChanged: bloc.changeName,
-            );
-          // });
-    }
+    return new TextFormField(
+      onSaved: (input) => personalAreaRequestModel.name = input,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0), labelText: 'Имя'),
+    );
+    // });
+  }
 
-    Widget _buttonField() {
-      return StreamBuilder<bool>(
-          // stream: bloc.submitValidForm,
-          builder: (context, snapshot) {
-            return Container(
-              alignment: Alignment.center,
-              margin: EdgeInsets.all(24),
-              child: ButtonTheme(
-                  minWidth: 250,
-                  height: 40,
-                  child: RaisedButton(
-                    onPressed: () {
-                      if (snapshot.hasError) {
-                        print(snapshot.error);
-                        return null;
-                      }
-                      // bloc.createPersonalArea(context);
-                    },
-                    color: Colors.amber[300],
-                    shape: RoundedRectangleBorder(
-                        borderRadius: new BorderRadius.circular(10.0)),
-                    child: Text('Подтвердить',
-                        textDirection: TextDirection.ltr,
-                        style: TextStyle(
-                            decoration: TextDecoration.none,
-                            color: Colors.black,
-                            fontSize: 16,
-                            fontFamily: 'Open Sans',
-                            fontWeight: FontWeight.w300)),
-                  )),
-            );
-          });
-    }
+  Widget _surnameField() {
+    return new TextFormField(
+      onSaved: (input) => personalAreaRequestModel.surname = input,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0), labelText: 'Фамилия'),
+    );
+    // });
+  }
 
-    Widget _passwordField() {
-      // return StreamBuilder<String>(
-      //     stream: bloc.surname,
-      //     builder: (context, snapshot) {
-            return TextField(
-              obscureText: true,
-              // onChanged: bloc.changeSurname,
-              maxLength: 20,
-              decoration: const InputDecoration(
-                  icon: Icon(Icons.visibility_off),
-                  contentPadding: const EdgeInsets.all(20.0),
-                  labelText: 'Фимилия'),
-            );
-          // });
-    }
+  Widget _patronymicField() {
+    return new TextFormField(
+      onSaved: (input) => personalAreaRequestModel.patronymic = input,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0), labelText: 'Отчество'),
+    );
+    // });
+  }
 
-  // Widget _usernameField(PersonalAreaFormBloc bloc) {
-  //   return StreamBuilder<String>(
-  //       stream: bloc.name,
-  //       builder: (context, snapshot) {
-  //         return TextField(
-  //           keyboardType: TextInputType.name,
-  //           decoration: const InputDecoration(
-  //               icon: Icon(Icons.account_box),
-  //               contentPadding: const EdgeInsets.all(20.0),
-  //               labelText: 'Имя'),
-  //           onChanged: bloc.changeName,
-  //         );
-  //       });
-  // }
-  //
-  // Widget _buttonField(PersonalAreaFormBloc bloc) {
-  //   return StreamBuilder<bool>(
-  //       stream: bloc.submitValidForm,
-  //       builder: (context, snapshot) {
-  //         return Container(
-  //           alignment: Alignment.center,
-  //           margin: EdgeInsets.all(24),
-  //           child: ButtonTheme(
-  //               minWidth: 250,
-  //               height: 40,
-  //               child: RaisedButton(
-  //                 onPressed: () {
-  //                   if (snapshot.hasError) {
-  //                     print(snapshot.error);
-  //                     return null;
-  //                   }
-  //                   bloc.createPersonalArea(context);
-  //                 },
-  //                 color: Colors.amber[300],
-  //                 shape: RoundedRectangleBorder(
-  //                     borderRadius: new BorderRadius.circular(10.0)),
-  //                 child: Text('Подтвердить',
-  //                     textDirection: TextDirection.ltr,
-  //                     style: TextStyle(
-  //                         decoration: TextDecoration.none,
-  //                         color: Colors.black,
-  //                         fontSize: 16,
-  //                         fontFamily: 'Open Sans',
-  //                         fontWeight: FontWeight.w300)),
-  //               )),
-  //         );
-  //       });
-  // }
-  //
-  // Widget _passwordField(PersonalAreaFormBloc bloc) {
-  //   return StreamBuilder<String>(
-  //       stream: bloc.surname,
-  //       builder: (context, snapshot) {
-  //         return TextField(
-  //           obscureText: true,
-  //           onChanged: bloc.changeSurname,
-  //           maxLength: 20,
-  //           decoration: const InputDecoration(
-  //               icon: Icon(Icons.visibility_off),
-  //               contentPadding: const EdgeInsets.all(20.0),
-  //               labelText: 'Фимилия'),
-  //         );
-  //       });
-  // }
+  Widget _geolocationField() {
+    return new TextFormField(
+      onSaved: (input) => personalAreaRequestModel.geolocation = input,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0),
+          labelText: 'Расположение'),
+    );
+    // });
+  }
+
+  Widget _phoneNumberField() {
+    return new TextFormField(
+      onSaved: (input) => personalAreaRequestModel.geolocation = input,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0), labelText: 'Телефон'),
+    );
+    // });
+  }
+
+  Widget _emailField() {
+    return new TextFormField(
+      onSaved: (input) => personalAreaRequestModel.email = input,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0),
+          labelText: 'Электронная почта'),
+    );
+    // });
+  }
+
+  Widget _buttonField() {
+    return Container(
+      alignment: Alignment.center,
+      margin: EdgeInsets.all(24),
+      child: ButtonTheme(
+          minWidth: 250,
+          height: 40,
+          child: RaisedButton(
+            onPressed: () {
+              if (validateAndSave()) {
+                print(personalAreaRequestModel.toJson());
+                setState(() {
+                  isApiCallProcess = true;
+                });
+
+                personalAreaService = new PersonalAreaService();
+                personalAreaService.create(personalAreaRequestModel);
+              }
+            },
+            color: Colors.amber[300],
+            shape: RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(10.0)),
+            child: Text('Подтвердить',
+                textDirection: TextDirection.ltr,
+                style: TextStyle(
+                    decoration: TextDecoration.none,
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'Open Sans',
+                    fontWeight: FontWeight.w300)),
+          )),
+    );
+  }
+
+  bool validateAndSave() {
+    final form = globalFormKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
+  }
 }
 
 class LogoImage extends StatelessWidget {

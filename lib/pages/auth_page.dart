@@ -2,100 +2,247 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_pinhome/blocs/auth_form_bloc.dart';
-import 'package:flutter_app_pinhome/providers/provider.dart';
+import 'package:flutter_app_pinhome/api/api_auth_service.dart';
+import 'package:flutter_app_pinhome/model/login_model.dart';
+import 'package:flutter_app_pinhome/pages/login_page.dart';
+import 'package:flutter_app_pinhome/pages/personal_area_page.dart';
 
-class AuthPage extends StatelessWidget {
+import '../ProgressHUD.dart';
+
+class AuthPage extends StatefulWidget {
+  @override
+  _AuthPageState createState() => _AuthPageState();
+}
+
+class _AuthPageState extends State<AuthPage> {
+  bool hidePassword = true;
+  bool isApiCallProcess = false;
+  GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
+  LoginRequestModel loginRequestModel;
+  final scaffoldKey = GlobalKey<ScaffoldState>();
+
+  @override
+  void initState() {
+    super.initState();
+    loginRequestModel = new LoginRequestModel();
+  }
+
   @override
   Widget build(BuildContext context) {
-    final AuthFormBloc formBloc = Provider.of(context);
+    return ProgressHUD(
+      child: _uiSetup(context),
+      inAsyncCall: isApiCallProcess,
+      opacity: 0.3,
+    );
+  }
 
+  @override
+  Widget _uiSetup(BuildContext context) {
     return Scaffold(
+        key: scaffoldKey,
         appBar: AppBar(),
         body: Center(
-          child: Container(
-            alignment: Alignment.center,
-            color: Colors.white,
-            child: ListView(
-              // mainAxisAlignment: MainAxisAlignment.center,
-              // crossAxisAlignment: CrossAxisAlignment.center,
+            child: Container(
+          alignment: Alignment.center,
+          color: Colors.white,
+          child: Form(
+            key: globalFormKey,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 LogoImage(),
                 TextAuth(),
-                _usernameField(formBloc),
-                _passwordField(formBloc),
-                _buttonField(formBloc)
+                new TextFormField(
+                    keyboardType: TextInputType.name,
+                    // validator: (input) => !input.contains('@')
+                    //     ? "Email Id should be valid"
+                    //     : null,
+                    onSaved: (input) => loginRequestModel.username = input,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.account_box),
+                        contentPadding: const EdgeInsets.all(20.0),
+                        labelText: 'Name',
+                        hintText: 'someone@company.com')),
+                // _usernameField(),
+                new TextFormField(
+                  obscureText: true,
+                  onSaved: (input) => loginRequestModel.password = input,
+                  validator: (input) => input.length < 3
+                      ? "Password should be more than 3 characters"
+                      : null,
+                  maxLength: 20,
+                  decoration: const InputDecoration(
+                      icon: Icon(Icons.visibility_off),
+                      contentPadding: const EdgeInsets.all(20.0),
+                      labelText: 'Password',
+                      hintText: 'Enter password'),
+                ),
+                // _passwordField(),
+                Container(
+                  alignment: Alignment.center,
+                  margin: EdgeInsets.all(24),
+                  child: ButtonTheme(
+                      minWidth: 250,
+                      height: 40,
+                      child: RaisedButton(
+                        onPressed: () {
+                          if (validateAndSave()) {
+                            print(loginRequestModel.toJson());
+                            setState(() {
+                              isApiCallProcess = true;
+                            });
+
+                            AuthService apiService = new AuthService();
+                            apiService.login(loginRequestModel).then((value) {
+                              if (value == null) {
+                                return Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => LoginPage()));
+                              }
+                              if (value.error != null) {
+                                final snackBar =
+                                    SnackBar(content: Text(value.error));
+                                scaffoldKey.currentState.showSnackBar(snackBar);
+                              }
+                              if (value != null) {
+                                setState(() {
+                                  isApiCallProcess = false;
+                                });
+                                if (!value.have) {
+                                  return Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              PersonalAreaPage()));
+                                }
+                                if (value.token.isNotEmpty) {
+                                  final snackBar = SnackBar(
+                                      content: Text("Login Successful"));
+                                  scaffoldKey.currentState
+                                      .showSnackBar(snackBar);
+                                  // Navigator.pushNamed(context, '/AuthPage');
+                                } else {
+                                  final snackBar =
+                                      SnackBar(content: Text(value.error));
+                                  scaffoldKey.currentState
+                                      .showSnackBar(snackBar);
+                                }
+                              }
+                            });
+                          }
+                        },
+                        color: Colors.amber[300],
+                        shape: RoundedRectangleBorder(
+                            borderRadius: new BorderRadius.circular(10.0)),
+                        child: Text('Войти',
+                            textDirection: TextDirection.ltr,
+                            style: TextStyle(
+                                decoration: TextDecoration.none,
+                                color: Colors.black,
+                                fontSize: 16,
+                                fontFamily: 'Open Sans',
+                                fontWeight: FontWeight.w300)),
+                      )),
+                )
+
+                // _buttonField()
               ],
             ),
           ),
-        ));
+        )));
   }
 
-  Widget _usernameField(AuthFormBloc bloc) {
-    return StreamBuilder<String>(
-        stream: bloc.username,
-        builder: (context, snapshot) {
-          return TextField(
+  Widget _passwordField() {
+    return Container(
+        child: TextFormField(
+      obscureText: true,
+      onSaved: (input) => loginRequestModel.password = input,
+      validator: (input) =>
+          input.length < 3 ? "Password should be more than 3 characters" : null,
+      maxLength: 20,
+      decoration: const InputDecoration(
+          icon: Icon(Icons.visibility_off),
+          contentPadding: const EdgeInsets.all(20.0),
+          labelText: 'Password',
+          hintText: 'Enter password'),
+    ));
+  }
+
+  Widget _usernameField() {
+    return Container(
+        child: TextFormField(
             keyboardType: TextInputType.name,
+            // validator: (input) => !input.contains('@')
+            //     ? "Email Id should be valid"
+            //     : null,
+            onSaved: (input) => loginRequestModel.username = input,
             decoration: const InputDecoration(
                 icon: Icon(Icons.account_box),
                 contentPadding: const EdgeInsets.all(20.0),
                 labelText: 'Name',
-                hintText: 'someone@company.com'),
-            onChanged: bloc.changeUsername,
-          );
-        });
+                hintText: 'someone@company.com')));
   }
 
-  Widget _buttonField(AuthFormBloc bloc) {
-    return StreamBuilder<bool>(
-        stream: bloc.submitValidForm,
-        builder: (context, snapshot) {
-          return Container(
-            alignment: Alignment.center,
-            margin: EdgeInsets.all(24),
-            child: ButtonTheme(
-                minWidth: 250,
-                height: 40,
-                child: RaisedButton(
-                  onPressed: () {
-                    if (snapshot.hasError) {
-                      print(snapshot.error);
-                      return null;
-                    }
-                    bloc.login(context);
-                  },
-                  color: Colors.amber[300],
-                  shape: RoundedRectangleBorder(
-                      borderRadius: new BorderRadius.circular(10.0)),
-                  child: Text('Войти',
-                      textDirection: TextDirection.ltr,
-                      style: TextStyle(
-                          decoration: TextDecoration.none,
-                          color: Colors.black,
-                          fontSize: 16,
-                          fontFamily: 'Open Sans',
-                          fontWeight: FontWeight.w300)),
-                )),
-          );
-        });
+  Widget _buttonField() {
+    return Container(
+      alignment: Alignment.center,
+      margin: EdgeInsets.all(24),
+      child: ButtonTheme(
+          minWidth: 250,
+          height: 40,
+          child: RaisedButton(
+            onPressed: () {
+              print(loginRequestModel.toJson());
+
+              setState(() {
+                isApiCallProcess = true;
+              });
+
+              AuthService apiService = new AuthService();
+              apiService.login(loginRequestModel).then((value) {
+                if (value != null) {
+                  setState(() {
+                    isApiCallProcess = false;
+                  });
+                  if (value == null) {
+                    return LoginPage();
+                  }
+
+                  if (value.token.isNotEmpty) {
+                    final snackBar =
+                        SnackBar(content: Text("Login Successful"));
+                    scaffoldKey.currentState.showSnackBar(snackBar);
+                  } else {
+                    final snackBar = SnackBar(content: Text(value.error));
+                    scaffoldKey.currentState.showSnackBar(snackBar);
+                  }
+                }
+              });
+            },
+            color: Colors.amber[300],
+            shape: RoundedRectangleBorder(
+                borderRadius: new BorderRadius.circular(10.0)),
+            child: Text('Войти',
+                textDirection: TextDirection.ltr,
+                style: TextStyle(
+                    decoration: TextDecoration.none,
+                    color: Colors.black,
+                    fontSize: 16,
+                    fontFamily: 'Open Sans',
+                    fontWeight: FontWeight.w300)),
+          )),
+    );
   }
 
-  Widget _passwordField(AuthFormBloc bloc) {
-    return StreamBuilder<String>(
-        stream: bloc.password,
-        builder: (context, snapshot) {
-          return TextField(
-            obscureText: true,
-            onChanged: bloc.changePassword,
-            maxLength: 20,
-            decoration: const InputDecoration(
-                icon: Icon(Icons.visibility_off),
-                contentPadding: const EdgeInsets.all(20.0),
-                labelText: 'Password',
-                hintText: 'Enter password'),
-          );
-        });
+  bool validateAndSave() {
+    final form = globalFormKey.currentState;
+    if (form.validate()) {
+      form.save();
+      return true;
+    }
+    return false;
   }
 }
 
