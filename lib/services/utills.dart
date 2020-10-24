@@ -6,7 +6,7 @@ class Utills {
       String url, Map jsonMap) async {
     HttpClient httpClient = new HttpClient();
     HttpClientRequest request = await httpClient
-        .postUrl(Uri.parse('https://pin-home.herokuapp.com' + url));
+        .postUrl(Uri.parse('http://pin-home.herokuapp.com' + url));
     request.headers.set('content-type', 'application/json');
     request.add(utf8.encode(json.encode(jsonMap)));
     HttpClientResponse response = await request.close();
@@ -27,7 +27,7 @@ class Utills {
       String url, Map jsonMap, Map<String, String> headers) async {
     HttpClient httpClient = new HttpClient();
     HttpClientRequest request = await httpClient
-        .postUrl(Uri.parse('https://pin-home.herokuapp.com' + url));
+        .postUrl(Uri.parse('http://pin-home.herokuapp.com' + url));
     request.headers.set('content-type', 'application/json');
     if (headers.isNotEmpty) {
       headers.forEach((key, value) {
