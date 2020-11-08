@@ -1,11 +1,11 @@
 class PersonalAreaResponseModel {
-  final String message;
+  final int status;
 
-  PersonalAreaResponseModel({this.message});
+  PersonalAreaResponseModel({this.status});
 
-  factory PersonalAreaResponseModel.fromJson(Map<String, String> body) {
+  factory PersonalAreaResponseModel.fromJson( int status) {
     return PersonalAreaResponseModel(
-        message: body["message"] != null ? body["error"] : "");
+        status: status);
   }
 }
 
@@ -16,23 +16,37 @@ class PersonalAreaRequestModel {
   String phoneNumber;
   String email;
   String geolocation;
-  String file;
+  String filePath;
+  String imgUrl;
 
   PersonalAreaRequestModel(
       {this.surname,
       this.name,
+      this.imgUrl,
       this.patronymic,
       this.phoneNumber,
       this.email,
       this.geolocation,
-      this.file});
+      this.filePath});
 
-  Map<String, dynamic> toJson() {
-    Map<String, dynamic> map = {
+  factory PersonalAreaRequestModel.fromJson(Map<String, dynamic> body,Map<String, dynamic> photo) {
+    return PersonalAreaRequestModel(
+      surname: body["surname"],
+      name: body["name"],
+      patronymic: body["patronymic"],
+      phoneNumber: body["phone_number"],
+      email: body["email"],
+      geolocation: body["geolocation"],
+      imgUrl: "https://backend-pin-home-server.site" + photo["image_path"] ,
+    );
+  }
+
+  Map<String, String> toJson() {
+    Map<String, String> map = {
       'surname': surname.trim(),
       'name': name.trim(),
       'patronymic': patronymic.trim(),
-      'phoneNumber': phoneNumber.trim(),
+      'phone_number': phoneNumber.trim(),
       'email': email.trim(),
       'geolocation': geolocation.trim(),
     };

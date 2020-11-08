@@ -2,11 +2,11 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
         body: Center(
       child: Container(
@@ -59,11 +59,67 @@ class LoginPage extends StatelessWidget {
                           fontSize: 16,
                           fontFamily: 'Open Sans',
                           fontWeight: FontWeight.w300)),
-                ))
+                )),
+            Container(
+              alignment: Alignment.center,
+              child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    IconButton(
+                      icon: Image.asset('images/google.png'),
+                      iconSize: 50,
+                      onPressed: () {
+                        _launchGoogleURL();
+                      },
+                    ),
+                    IconButton(
+                      icon: Image.asset('images/facebook.png'),
+                      iconSize: 50,
+                      onPressed: () {
+                        _launchFacebookURL();
+                      },
+                    ),
+                    IconButton(
+                      icon: Image.asset('images/yandex.png'),
+                      iconSize: 50,
+                      onPressed: () {
+                        _launchYandexURL();
+                      },
+                    )
+                  ]),
+            )
           ],
         ),
       ),
     ));
+  }
+}
+
+_launchGoogleURL() async {
+  const url = 'https://pin-home.herokuapp.com/authorization/google';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+_launchYandexURL() async {
+  const url = 'https://pin-home.herokuapp.com/authorization/yandex';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
+  }
+}
+
+_launchFacebookURL() async {
+  const url = 'https://pin-home.herokuapp.com/authorization/facebook';
+  if (await canLaunch(url)) {
+    await launch(url);
+  } else {
+    throw 'Could not launch $url';
   }
 }
 

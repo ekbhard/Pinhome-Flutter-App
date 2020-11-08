@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_auth_service.dart';
 import 'package:flutter_app_pinhome/model/login_model.dart';
 import 'package:flutter_app_pinhome/pages/login_page.dart';
+import 'package:flutter_app_pinhome/pages/create_personal_area_page.dart';
 import 'package:flutter_app_pinhome/pages/personal_area_page.dart';
 
 import '../ProgressHUD.dart';
@@ -36,6 +37,11 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
+  void showInSnackBar(String value) {
+    scaffoldKey.currentState
+        .showSnackBar(new SnackBar(content: new Text(value)));
+  }
+
   @override
   Widget _uiSetup(BuildContext context) {
     return Scaffold(
@@ -47,9 +53,7 @@ class _AuthPageState extends State<AuthPage> {
           color: Colors.white,
           child: Form(
             key: globalFormKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: ListView(
               children: <Widget>[
                 LogoImage(),
                 TextAuth(),
@@ -115,6 +119,12 @@ class _AuthPageState extends State<AuthPage> {
                                       context,
                                       MaterialPageRoute(
                                           builder: (context) =>
+                                              CreatePersonalAreaPage()));
+                                } else if (value.have) {
+                                  return Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
                                               PersonalAreaPage()));
                                 }
                                 if (value.token.isNotEmpty) {
@@ -146,8 +156,6 @@ class _AuthPageState extends State<AuthPage> {
                                 fontWeight: FontWeight.w300)),
                       )),
                 )
-
-                // _buttonField()
               ],
             ),
           ),

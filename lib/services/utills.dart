@@ -1,51 +1,39 @@
+import 'dart:typed_data';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter/material.dart';
+import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 class Utills {
-  static Future<Map<Object, Object>> postRequest(
-      String url, Map jsonMap) async {
-    HttpClient httpClient = new HttpClient();
-    HttpClientRequest request = await httpClient
-        .postUrl(Uri.parse('http://pin-home.herokuapp.com' + url));
-    request.headers.set('content-type', 'application/json');
-    request.add(utf8.encode(json.encode(jsonMap)));
-    HttpClientResponse response = await request.close();
-    int status = response.statusCode;
-    String cookies =
-        response.cookies.toString().replaceAll('[', '').split(";")[0];
-    String reply = await response.transform(utf8.decoder).join();
-    Map<Object, Object> map = {
-      'status': status,
-      'response_body': reply,
-      'cookies': cookies
-    };
-    httpClient.close();
-    return map;
+  static const String IMAGE_KEY = "img";
+
+  static Future<String> getImageFromPreferences() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(IMAGE_KEY) ?? null;
   }
 
-  static Future<Map<Object, Object>> postRequestWithHeaders(
-      String url, Map jsonMap, Map<String, String> headers) async {
-    HttpClient httpClient = new HttpClient();
-    HttpClientRequest request = await httpClient
-        .postUrl(Uri.parse('http://pin-home.herokuapp.com' + url));
-    request.headers.set('content-type', 'application/json');
-    if (headers.isNotEmpty) {
-      headers.forEach((key, value) {
-        request.headers.set(key, value);
-      });
-    }
-    request.add(utf8.encode(json.encode(jsonMap)));
-    HttpClientResponse response = await request.close();
-    int status = response.statusCode;
-    String cookies =
-        response.cookies.toString().replaceAll('[', '').split(";")[0];
-    String reply = await response.transform(utf8.decoder).join();
-    Map<Object, Object> map = {
-      'status': status,
-      'response_body': reply,
-      'cookies': cookies
-    };
-    httpClient.close();
-    return map;
+  static Future<bool> setNullImage() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString(IMAGE_KEY, null);
+  }
+
+  static Future<bool> saveImageToPreferences(String value) async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString(IMAGE_KEY, value);
+  }
+
+  static Image imageFromBase64String(String base64String) {
+    return Image.memory(
+      base64Decode(base64String),
+      fit: BoxFit.fill,
+    );
+  }
+
+  static Uint8List dataFromBase64String(String base64String) {
+    return base64Decode(base64String);
+  }
+
+  static String base64String(Uint8List data) {
+    return base64Encode(data);
   }
 }
