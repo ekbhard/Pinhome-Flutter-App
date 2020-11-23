@@ -1,39 +1,40 @@
 import 'dart:ui';
 
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_pinhome/api/api_personal_area_service.dart';
-import 'package:flutter_app_pinhome/model/personal_area_model.dart';
+import 'package:flutter_app_pinhome/api/api_announcement_service.dart';
+import 'package:flutter_app_pinhome/model/crate_anouns_request.dart';
 import 'package:flutter_app_pinhome/pages/personal_area_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imagebutton/imagebutton.dart';
 
-class CreatePersonalAreaPage extends StatefulWidget {
+class CreateAnnounsmentPage extends StatefulWidget {
   @override
-  _CreatePersonalAreaPageState createState() => _CreatePersonalAreaPageState();
+  _CreateAnnounsmentPageState createState() => _CreateAnnounsmentPageState();
 }
 
-class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
+class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   bool isApiCallProcess = false;
   bool _autoValidate = false;
-  PersonalAreaRequestModel personalAreaRequestModel;
+  AnnouncementCreate model;
   final scaffoldKey = GlobalKey<ScaffoldState>();
-  PersonalAreaService personalAreaService;
+  AnnouncementService service;
 
   @override
   void initState() {
     super.initState();
-    personalAreaRequestModel = new PersonalAreaRequestModel();
-    personalAreaService = new PersonalAreaService();
+    model = new AnnouncementCreate();
+    service = new AnnouncementService();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         key: scaffoldKey,
-        appBar: AppBar(),
+        appBar: AppBar(
+          title: new Text("Добавление товара"),
+        ),
         body: Center(
             child: Container(
           alignment: Alignment.center,
@@ -45,14 +46,6 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
               // mainAxisAlignment: MainAxisAlignment.center,
               // crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                LogoImage(),
-                TextAuth(),
-                _usernameField(),
-                _surnameField(),
-                _patronymicField(),
-                _geolocationField(),
-                _emailField(),
-                _phoneNumberField(),
                 Container(
                   margin: EdgeInsets.all(20.0),
                   child: ImageButton(
@@ -67,18 +60,15 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
                     onTap: () async {
                       var file = await ImagePicker.pickImage(
                           source: ImageSource.gallery);
-                      personalAreaRequestModel.filePath = file.path;
+                      model.filePath = file.path;
                     },
                   ),
                 ),
-                // FloatingActionButton(
-                //   onPressed: () async {
-                //     var file = await ImagePicker.pickImage(
-                //         source: ImageSource.gallery);
-                //     personalAreaRequestModel.filePath = file.path;
-                //   },
-                //   child: Icon(Icons.add_a_photo),
-                // ),
+                _nameField(),
+                _descrField(),
+                _wantField(),
+                _addressField(),
+                _cityField(),
                 _buttonField(),
               ],
             ),
@@ -98,60 +88,51 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
       unpressedImage: Image.asset("images/add_image.png"),
       onTap: () async {
         var file = await ImagePicker.pickImage(source: ImageSource.gallery);
-        personalAreaRequestModel.filePath = file.path;
+        model.filePath = file.path;
       },
     );
   }
 
-  Widget _usernameField() {
+  Widget _nameField() {
     return new TextFormField(
-      onSaved: (input) => personalAreaRequestModel.name = input,
+      onSaved: (input) => model.name = input,
       keyboardType: TextInputType.name,
-      validator: (name) {
-        Pattern pattern = r'^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$';
-        RegExp regex = new RegExp(pattern);
-        if (!regex.hasMatch(name))
-          return 'Invalid username';
-        else
-          return null;
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0),
+          labelText: 'Название товара'),
+    );
+    // });
+  }
+
+  Widget _descrField() {
+    return new TextFormField(
+      onSaved: (input) => model.description = input,
+      keyboardType: TextInputType.name,
+      decoration: const InputDecoration(
+          contentPadding: const EdgeInsets.all(20.0),
+          labelText: 'Описание товара'),
+    );
+    // });
+  }
+
+  Widget _wantField() {
+    var namesGrowable = new List<Want>();
+    return new TextFormField(
+      onSaved: (input) {
+        namesGrowable.add(Want(1, input));
+        model.want = namesGrowable;
       },
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0), labelText: 'Имя'),
-    );
-    // });
-  }
-
-  Widget _surnameField() {
-    return new TextFormField(
-      onSaved: (input) => personalAreaRequestModel.surname = input,
-      keyboardType: TextInputType.name,
-      validator: (name) {
-        Pattern pattern = r'^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$';
-        RegExp regex = new RegExp(pattern);
-        if (!regex.hasMatch(name))
-          return 'Invalid surname';
-        else
-          return null;
-      },
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0), labelText: 'Фамилия'),
-    );
-    // });
-  }
-
-  Widget _patronymicField() {
-    return new TextFormField(
-      onSaved: (input) => personalAreaRequestModel.patronymic = input,
       keyboardType: TextInputType.name,
       decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0), labelText: 'Отчество'),
+          contentPadding: const EdgeInsets.all(20.0),
+          labelText: 'Что вы хотите взамен'),
     );
     // });
   }
 
-  Widget _geolocationField() {
+  Widget _addressField() {
     return new TextFormField(
-      onSaved: (input) => personalAreaRequestModel.geolocation = input,
+      onSaved: (input) => model.address = input,
       keyboardType: TextInputType.streetAddress,
       decoration: const InputDecoration(
           contentPadding: const EdgeInsets.all(20.0),
@@ -160,25 +141,12 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
     // });
   }
 
-  Widget _phoneNumberField() {
+  Widget _cityField() {
     return new TextFormField(
-      onSaved: (input) => personalAreaRequestModel.phoneNumber = input,
+      onSaved: (input) => model.city = input,
       keyboardType: TextInputType.phone,
       decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0), labelText: 'Телефон'),
-    );
-    // });
-  }
-
-  Widget _emailField() {
-    return new TextFormField(
-      onSaved: (input) => personalAreaRequestModel.email = input,
-      keyboardType: TextInputType.emailAddress,
-      validator: (email) =>
-          EmailValidator.validate(email) ? null : "Invalid email address",
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0),
-          labelText: 'Электронная почта'),
+          contentPadding: const EdgeInsets.all(20.0), labelText: 'Ваш город'),
     );
     // });
   }
@@ -193,14 +161,12 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
           child: RaisedButton(
             onPressed: () {
               if (validateAndSave()) {
-                print(personalAreaRequestModel.toJson());
+                print(model.toJson());
                 setState(() {
                   isApiCallProcess = true;
                 });
-                personalAreaService = new PersonalAreaService();
-                personalAreaService
-                    .create(personalAreaRequestModel)
-                    .then((value) {
+                service = new AnnouncementService();
+                service.create(model).then((value) {
                   if (value.status == 200) {
                     return Navigator.push(
                         context,
@@ -208,7 +174,7 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
                             builder: (context) => PersonalAreaPage()));
                   } else {
                     final snackBar = SnackBar(
-                        content: Text("Создание личного кабинета не успешно"));
+                        content: Text("Создание объявления не успешно"));
                     scaffoldKey.currentState.showSnackBar(snackBar);
                   }
                 });

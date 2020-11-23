@@ -4,11 +4,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_auth_service.dart';
 import 'package:flutter_app_pinhome/model/login_model.dart';
-import 'package:flutter_app_pinhome/pages/login_page.dart';
 import 'package:flutter_app_pinhome/pages/create_personal_area_page.dart';
-import 'package:flutter_app_pinhome/pages/personal_area_page.dart';
+import 'package:flutter_app_pinhome/pages/login_page.dart';
 
 import '../ProgressHUD.dart';
+import 'bottom_panel.dart';
 
 class AuthPage extends StatefulWidget {
   @override
@@ -66,22 +66,19 @@ class _AuthPageState extends State<AuthPage> {
                     decoration: const InputDecoration(
                         icon: Icon(Icons.account_box),
                         contentPadding: const EdgeInsets.all(20.0),
-                        labelText: 'Name',
-                        hintText: 'someone@company.com')),
+                        labelText: 'Логин')),
                 // _usernameField(),
                 new TextFormField(
-                  obscureText: true,
-                  onSaved: (input) => loginRequestModel.password = input,
-                  validator: (input) => input.length < 3
-                      ? "Password should be more than 3 characters"
-                      : null,
-                  maxLength: 20,
-                  decoration: const InputDecoration(
-                      icon: Icon(Icons.visibility_off),
-                      contentPadding: const EdgeInsets.all(20.0),
-                      labelText: 'Password',
-                      hintText: 'Enter password'),
-                ),
+                    obscureText: true,
+                    onSaved: (input) => loginRequestModel.password = input,
+                    validator: (input) => input.length < 3
+                        ? "Password should be more than 3 characters"
+                        : null,
+                    maxLength: 20,
+                    decoration: const InputDecoration(
+                        icon: Icon(Icons.visibility_off),
+                        contentPadding: const EdgeInsets.all(20.0),
+                        labelText: 'Пароль')),
                 // _passwordField(),
                 Container(
                   alignment: Alignment.center,
@@ -106,8 +103,8 @@ class _AuthPageState extends State<AuthPage> {
                                         builder: (context) => LoginPage()));
                               }
                               if (value.error != null) {
-                                final snackBar =
-                                    SnackBar(content: Text(value.error));
+                                final snackBar = SnackBar(
+                                    content: Text("Что то пошло не так"));
                                 scaffoldKey.currentState.showSnackBar(snackBar);
                               }
                               if (value != null) {
@@ -124,8 +121,7 @@ class _AuthPageState extends State<AuthPage> {
                                   return Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) =>
-                                              PersonalAreaPage()));
+                                          builder: (context) => BottomPanel()));
                                 }
                                 if (value.token.isNotEmpty) {
                                   final snackBar = SnackBar(

@@ -8,7 +8,6 @@ class RegistrationResponseModel {
     return RegistrationResponseModel(
         error: body["error"] != null ? body["error"] : "",
         message: body["message"] != null ? body["message"] : "");
-
   }
 }
 

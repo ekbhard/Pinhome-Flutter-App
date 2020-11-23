@@ -10,13 +10,11 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      body: new Center(
-        child: new Text("Chat"),
-      ),
-      appBar: new AppBar(
-        title: new Text("Chat"),
-      )
-
-    );
+        body: new Center(
+          child: new Text("Chat"),
+        ),
+        appBar: new AppBar(
+          title: new Text("Chat"),
+        ));
   }
 }

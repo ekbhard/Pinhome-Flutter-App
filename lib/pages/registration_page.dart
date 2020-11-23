@@ -6,7 +6,6 @@ import 'package:flutter_app_pinhome/api/api_auth_service.dart';
 import 'package:flutter_app_pinhome/model/registration_model.dart';
 
 import 'auth_page.dart';
-import 'login_page.dart';
 
 class RegistrationPage extends StatefulWidget {
   @override

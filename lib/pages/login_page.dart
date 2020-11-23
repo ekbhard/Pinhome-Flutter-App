@@ -97,7 +97,7 @@ class LoginPage extends StatelessWidget {
 }
 
 _launchGoogleURL() async {
-  const url = 'https://pin-home.herokuapp.com/authorization/google';
+  const url = 'https://backend-pin-home-server.site/authorization/google';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
@@ -106,7 +106,7 @@ _launchGoogleURL() async {
 }
 
 _launchYandexURL() async {
-  const url = 'https://pin-home.herokuapp.com/authorization/yandex';
+  const url = 'https://backend-pin-home-server.site/authorization/yandex';
   if (await canLaunch(url)) {
     await launch(url);
   } else {
@@ -115,7 +115,7 @@ _launchYandexURL() async {
 }
 
 _launchFacebookURL() async {
-  const url = 'https://pin-home.herokuapp.com/authorization/facebook';
+  const url = 'https://backend-pin-home-server.site/authorization/facebook';
   if (await canLaunch(url)) {
     await launch(url);
   } else {

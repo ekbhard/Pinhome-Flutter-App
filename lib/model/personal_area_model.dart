@@ -3,9 +3,8 @@ class PersonalAreaResponseModel {
 
   PersonalAreaResponseModel({this.status});
 
-  factory PersonalAreaResponseModel.fromJson( int status) {
-    return PersonalAreaResponseModel(
-        status: status);
+  factory PersonalAreaResponseModel.fromJson(int status) {
+    return PersonalAreaResponseModel(status: status);
   }
 }
 
@@ -29,7 +28,8 @@ class PersonalAreaRequestModel {
       this.geolocation,
       this.filePath});
 
-  factory PersonalAreaRequestModel.fromJson(Map<String, dynamic> body,Map<String, dynamic> photo) {
+  factory PersonalAreaRequestModel.fromJson(
+      Map<String, dynamic> body, Map<String, dynamic> photo) {
     return PersonalAreaRequestModel(
       surname: body["surname"],
       name: body["name"],
@@ -37,7 +37,7 @@ class PersonalAreaRequestModel {
       phoneNumber: body["phone_number"],
       email: body["email"],
       geolocation: body["geolocation"],
-      imgUrl: "https://backend-pin-home-server.site" + photo["image_path"] ,
+      imgUrl: "https://backend-pin-home-server.site" + photo["image_path"],
     );
   }
 

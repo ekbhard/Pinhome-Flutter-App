@@ -8,8 +8,6 @@ import 'package:http/http.dart' as http;
 class PersonalAreaService {
   final storage = new FlutterSecureStorage();
 
-  // String url = "http://s7b68957b.fastvps-server.com/";
-  // String url = "https://pin-home.herokuapp.com/";
   String url = "https://backend-pin-home-server.site";
 
   Future<PersonalAreaResponseModel> create(
@@ -28,32 +26,12 @@ class PersonalAreaService {
           await http.MultipartFile.fromPath('photo', requestModel.filePath);
       request.files.add(file);
     } else {
-      // File f = await getImageFileFromAssets("images/default_avatar.jpg");
-      // final file = await http.MultipartFile.fromPath('photo', f.path);
-      // request.files.add(file);
       request.files.add(null);
     }
 
     final response = await request.send();
-    // String sfd = response.stream.transform(utf8.decoder).first.toString();
-    // String jsonString;
-    // response.stream.transform(utf8.decoder).listen((value) {
-    //   jsonString = value;
-    // });
-    // var czcd = json.decode(jsonString);
     return PersonalAreaResponseModel.fromJson(response.statusCode);
-    // return PersonalAreaResponseModel.fromJson(response.);
   }
-
-  // Future<File> getImageFileFromAssets(String path) async {
-  //   final byteData = await rootBundle.load('$path');
-  //
-  //   String sfs = await getApplicationDocumentsDirectory().then((value) => value.toString());
-  //   final file = File('${(await getApplicationDocumentsDirectory()).path}/$path');
-  //   await file.writeAsBytes(byteData.buffer.asUint8List(byteData.offsetInBytes, byteData.lengthInBytes));
-  //
-  //   return file;
-  // }
 
   Future<PersonalAreaRequestModel> get() async {
     String loginUrl = "/personal_area/";
@@ -69,7 +47,8 @@ class PersonalAreaService {
     }
     Map valueMap = json.decode(response.body)["currently_user"];
     return PersonalAreaRequestModel.fromJson(
-        json.decode(response.body)["currently_user"],json.decode(response.body)["photo"]);
+        json.decode(response.body)["currently_user"],
+        json.decode(response.body)["photo"]);
   }
 
   Future<String> getUserAvatar() async {

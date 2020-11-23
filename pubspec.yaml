@@ -64,6 +64,11 @@ flutter:
   assets:
     - images/logo.png
     - images/add_item.png
+    - images/info_button.png
+    - images/search.png
+    - images/bag.png
+    - images/hands.png
+    - images/heart.png
     - images/chat.png
     - images/profile.png
     - images/find.png

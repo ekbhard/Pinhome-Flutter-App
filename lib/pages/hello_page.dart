@@ -33,7 +33,9 @@ class HelloPage extends StatelessWidget {
                     fontSize: 14,
                     fontFamily: 'Rubik',
                     fontWeight: FontWeight.w300)),
-            FlatButton(color: Colors.white,)
+            FlatButton(
+              color: Colors.white,
+            )
           ],
         ),
       ),
