@@ -17,6 +17,7 @@ class AnnounsmentPage extends StatefulWidget {
 class _AnnounsmentPageState extends State<AnnounsmentPage> {
   Future<Announcement> model;
   AnnouncementService service;
+  bool _free;
 
   @override
   void initState() {
@@ -48,29 +49,41 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
                             ),
                             TextBolt(text: "Описание"),
                             TextRegular(text: snapshot.data.description),
-                            TextBolt(text: "Хочу обменять на"),
-                            TextRegular(
-                                text: snapshot.data.want.first.wantCat.name),
-                            TextRegular(text: snapshot.data.want.first.strWant),
+                            TextBolt(
+                                text: !snapshot.data.free
+                                    ? "Хочу обменять на"
+                                    : "Этот предмет отдается бесплатно"),
+                            Visibility(
+                              visible: !snapshot.data.free,
+                              child: TextRegular(
+                                  text: !snapshot.data.free
+                                      ? snapshot.data.want.first.wantCat.name
+                                      : ""),
+                            ),
+                            Visibility(
+                                visible: !snapshot.data.free,
+                                child: TextRegular(
+                                    text: !snapshot.data.free
+                                        ? snapshot.data.want.first.strWant
+                                        : "")),
                             TextBolt(text: "Местонахождение"),
                             TextRegular(text: snapshot.data.city),
-                            TextRegular(text: snapshot.data.address),
                             _variantsButton(),
                             _editButtonField(),
-                            _deleteButton()
+                            _deleteButton(snapshot.data.id)
                           ],
                         ));
                       }
                     }))));
   }
 
-  _createAlertDialog(BuildContext context) {
+  _createAlertDialog(BuildContext context, int itemId) {
     return showDialog(
         context: context,
         builder: (context) {
           return AlertDialog(
             title: Text("Выберите причину"),
-            actions: <Widget>[CustomDialog()],
+            actions: <Widget>[CustomDialog(itemId: itemId)],
           );
         });
   }
@@ -121,7 +134,7 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
     );
   }
 
-  Widget _deleteButton() {
+  Widget _deleteButton(int itemId) {
     return Container(
         alignment: Alignment.center,
         child: ButtonTheme(
@@ -130,7 +143,7 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
             child: RaisedButton(
               // padding: EdgeInsets.all(50),
               onPressed: () {
-                _createAlertDialog(context);
+                _createAlertDialog(context, itemId);
               },
               color: Colors.white,
               shape: RoundedRectangleBorder(

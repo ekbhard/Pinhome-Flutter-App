@@ -15,6 +15,7 @@ class Announcement {
     this.user,
     this.recentlyViewed,
     this.saled,
+    this.free,
     this.created,
     this.want,
     this.name,
@@ -31,6 +32,7 @@ class Announcement {
   int user;
   List<dynamic> recentlyViewed;
   bool saled;
+  bool free;
   DateTime created;
   List<Want> want;
   String name;
@@ -50,6 +52,9 @@ class Announcement {
         saled: json["saled"],
         created: DateTime.parse(json["created"]),
         want: List<Want>.from(json["want"].map((x) => Want.fromJson(x))),
+        free:
+            List<Want>.from(json["want"].map((x) => Want.fromJson(x))).length ==
+                0,
         name: json["name"],
         category: json["category"],
         address: json["address"],

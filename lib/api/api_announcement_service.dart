@@ -3,7 +3,9 @@ import 'dart:convert';
 
 import 'package:flutter_app_pinhome/model/all_announcements.dart';
 import 'package:flutter_app_pinhome/model/announsment.dart';
+import 'package:flutter_app_pinhome/model/categiries.dart';
 import 'package:flutter_app_pinhome/model/crate_anouns_request.dart';
+import 'package:flutter_app_pinhome/model/want_tab.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
@@ -13,6 +15,31 @@ class AnnouncementService {
 
   Future<List<AnnouncementElement>> get() async {
     String loginUrl = "/api/my_announcements/all_active";
+    String value = await storage.read(key: "token");
+    Map<String, String> headers = {'x-access-token': value};
+    final response = await http.get(url + loginUrl, headers: headers);
+    if (response.statusCode != 200) {
+      print(response.body);
+      throw Exception(response.body);
+    }
+    return AnnouncementAll.fromJson(json.decode(response.body)).announcement;
+  }
+
+  Future<List<WantTab>> getWantTab() async {
+    String loginUrl = "/api/wants_for_current_user";
+    String value = await storage.read(key: "token");
+    Map<String, String> headers = {'x-access-token': value};
+    final response = await http.get(url + loginUrl, headers: headers);
+    if (response.statusCode != 200) {
+      print(response.body);
+      throw Exception(response.body);
+    }
+    List<WantTab> list = List<WantTab>.from(json.decode(response.body).map((x) => WantTab.fromJson(x)));
+    return list;
+  }
+
+  Future<List<AnnouncementElement>> getClosed() async {
+    String loginUrl = "/api/my_announcements/closed";
     String value = await storage.read(key: "token");
     Map<String, String> headers = {'x-access-token': value};
     final response = await http.get(url + loginUrl, headers: headers);
@@ -33,6 +60,18 @@ class AnnouncementService {
       throw Exception(response.body);
     }
     return Announcement.fromJson(json.decode(response.body));
+  }
+
+  Future<Categories> getCategories() async {
+    String loginUrl = "/api/all_categories";
+    String value = await storage.read(key: "token");
+    Map<String, String> headers = {'x-access-token': value};
+    final response = await http.get(url + loginUrl, headers: headers);
+    if (response.statusCode != 200) {
+      print(response.body);
+      throw Exception(response.body);
+    }
+    return Categories.fromJson(json.decode(response.body));
   }
 
   Future<AnnouncementResponce> create(AnnouncementCreate requestModel) async {

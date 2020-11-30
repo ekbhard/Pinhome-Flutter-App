@@ -10,9 +10,11 @@ class CloseService {
   String url = "https://backend-pin-home-server.site";
 
   Future<int> delete(Close requestModel, int id) async {
-    await storage.deleteAll();
     String deleteUrl = "/api/close_announcement/" + id.toString();
-    Map<String, String> headers = {'content-type': 'application/json'};
+    String value = await storage.read(key: "token");
+    Map<String, String> headers = {
+      'content-type': 'application/json',
+      'x-access-token': value};
     try {
       final response = await http.post(url + deleteUrl,
           headers: headers, body: json.encode(requestModel));

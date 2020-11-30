@@ -22,9 +22,11 @@ class AnnouncementCreate {
         "description": description,
         // "category": category,
         "category": 1,
-        "want": List<dynamic>.from(want.map((x) => x.toJson())),
+        "want": want != null
+            ? List<dynamic>.from(want.map((x) => x.toJson()))
+            : List.empty(),
         "city": city,
-        "address": address,
+        "address": "address",
       };
 }
 

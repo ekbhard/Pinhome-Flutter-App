@@ -4,18 +4,19 @@ import 'package:flutter_app_pinhome/model/all_announcements.dart';
 import 'package:flutter_app_pinhome/pages/announcement_page.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-class AnnouncementWidget extends StatefulWidget {
-  const AnnouncementWidget({
+class CloseAnnouncementWidget extends StatefulWidget {
+  const CloseAnnouncementWidget({
     Key key,
     @required this.scrollController,
   }) : super(key: key);
   final ScrollController scrollController;
 
   @override
-  _AnnouncementWidgetState createState() => _AnnouncementWidgetState();
+  _CloseAnnouncementWidgetState createState() =>
+      _CloseAnnouncementWidgetState();
 }
 
-class _AnnouncementWidgetState extends State<AnnouncementWidget> {
+class _CloseAnnouncementWidgetState extends State<CloseAnnouncementWidget> {
   Future<List<AnnouncementElement>> model;
   bool isLoading = false;
   AnnouncementService service;
@@ -25,7 +26,7 @@ class _AnnouncementWidgetState extends State<AnnouncementWidget> {
   @override
   void initState() {
     service = new AnnouncementService();
-    model = service.get();
+    model = service.getClosed();
     super.initState();
   }
 
@@ -55,7 +56,9 @@ class _AnnouncementWidgetState extends State<AnnouncementWidget> {
 
   Widget getCard(AnnouncementElement element) {
     var name = element.name;
-    var want = element.want.length != 0 ? element.want.first["str_want"]:"Этот товар отдается бесплатно";
+    var want = element.want.length != 0
+        ? element.want.first["str_want"]
+        : "Эта вещь отдается бесплатно";
     var picUrl = element.images.first.imagePath;
     return Container(
       height: 100,
@@ -68,8 +71,7 @@ class _AnnouncementWidgetState extends State<AnnouncementWidget> {
                     return Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                AnnounsmentPage(
+                            builder: (context) => AnnounsmentPage(
                                   id: element.id,
                                   title: element.name,
                                 )));
@@ -80,7 +82,10 @@ class _AnnouncementWidgetState extends State<AnnouncementWidget> {
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(60 / 2),
                         image: DecorationImage(
-                            fit: BoxFit.cover, image: NetworkImage(picUrl))),
+                            colorFilter: ColorFilter.mode(
+                                Colors.grey, BlendMode.saturation),
+                            fit: BoxFit.cover,
+                            image: NetworkImage(picUrl))),
                   ),
                   title: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

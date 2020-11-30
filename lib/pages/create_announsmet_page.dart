@@ -1,12 +1,15 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_announcement_service.dart';
+import 'package:flutter_app_pinhome/model/categiries.dart';
 import 'package:flutter_app_pinhome/model/crate_anouns_request.dart';
-import 'package:flutter_app_pinhome/pages/personal_area_page.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imagebutton/imagebutton.dart';
+
+import 'bottom_panel.dart';
 
 class CreateAnnounsmentPage extends StatefulWidget {
   @override
@@ -17,15 +20,22 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   bool isApiCallProcess = false;
   bool _autoValidate = false;
+  bool _free = false;
   AnnouncementCreate model;
+  Future<Categories> categoriesModel;
   final scaffoldKey = GlobalKey<ScaffoldState>();
   AnnouncementService service;
+  Category _selectedItemCategory;
+  Category _selectedWantCategory;
+  File _file;
 
   @override
   void initState() {
+    _free = false;
     super.initState();
     model = new AnnouncementCreate();
     service = new AnnouncementService();
+    categoriesModel = service.getCategories();
   }
 
   @override
@@ -34,6 +44,10 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
         key: scaffoldKey,
         appBar: AppBar(
           title: new Text("Добавление товара"),
+          leading: IconButton(
+            icon: Icon(Icons.arrow_back, color: Colors.black),
+            onPressed: () => Navigator.of(context).pop(),
+          ),
         ),
         body: Center(
             child: Container(
@@ -53,21 +67,26 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
                     width: 78,
                     height: 57,
                     paddingTop: 5,
-                    pressedImage: Image.asset(
-                      "images/add_image.png",
-                    ),
+                    pressedImage: _file != null
+                        ? Image.file(_file)
+                        : Image.asset("images/add_image.png"),
                     unpressedImage: Image.asset("images/add_image.png"),
                     onTap: () async {
                       var file = await ImagePicker.pickImage(
                           source: ImageSource.gallery);
+                      setState(() {
+                        _file = file;
+                      });
                       model.filePath = file.path;
                     },
                   ),
                 ),
                 _nameField(),
                 _descrField(),
+                _dropDownForItemCategory(),
+                _freeCheckBox(),
                 _wantField(),
-                _addressField(),
+                _dropDownForWantCategory(),
                 _cityField(),
                 _buttonField(),
               ],
@@ -76,77 +95,202 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
         )));
   }
 
-  Widget _buttonAvatar(BuildContext context) {
-    return ImageButton(
-      children: <Widget>[],
-      width: 91,
-      height: 36,
-      paddingTop: 5,
-      pressedImage: Image.asset(
-        "images/add_image.png",
+  List<DropdownMenuItem<Category>> buildDropdownMenuItems(
+      List<Category> categories) {
+    List<DropdownMenuItem<Category>> items = List();
+    for (Category category in categories) {
+      items.add(
+        DropdownMenuItem(
+          value: category,
+          child: Text(category.name),
+        ),
+      );
+    }
+    return items;
+  }
+
+  onChangeDropDownForItemCategory(Category selectedCategory) {
+    setState(() {
+      _selectedItemCategory = selectedCategory;
+      model.category = selectedCategory.id.toString();
+    });
+  }
+
+  Widget _dropDownForItemCategory() {
+    return new Container(
+      child: FutureBuilder(
+          future: categoriesModel,
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return Center(child: CircularProgressIndicator());
+            } else {
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.99,
+                    height: MediaQuery.of(context).size.height * 0.02,
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.05,
+                        right: MediaQuery.of(context).size.height * 0.05),
+                    child: DropdownButton(
+                      isExpanded: true,
+                      hint: Text("Выберете категорию вещи из объявления"),
+                      value: _selectedItemCategory,
+                      items: buildDropdownMenuItems(snapshot.data.category),
+                      onChanged: onChangeDropDownForItemCategory,
+                    ),
+                  ),
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width * 0.99,
+                    height: MediaQuery.of(context).size.height * 0.02,
+                  ),
+                ],
+              );
+            }
+          }),
+    );
+  }
+
+  onChangeDropDownForWantCategory(Category selectedCategory) {
+    setState(() {
+      _selectedWantCategory = selectedCategory;
+    });
+  }
+
+  Widget _dropDownForWantCategory() {
+    return Visibility(
+      visible: !_free,
+      child: new Container(
+        child: FutureBuilder(
+            future: categoriesModel,
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Center(child: CircularProgressIndicator());
+              } else {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.99,
+                      height: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(
+                          left: MediaQuery.of(context).size.width * 0.05,
+                          right: MediaQuery.of(context).size.height * 0.05),
+                      child: DropdownButton(
+                        isExpanded: true,
+                        hint: Text("Выберете категорию вещи на обмен"),
+                        value: _selectedWantCategory,
+                        items: buildDropdownMenuItems(snapshot.data.category),
+                        onChanged: onChangeDropDownForWantCategory,
+                      ),
+                    ),
+                    SizedBox(
+                      width: MediaQuery.of(context).size.width * 0.99,
+                      height: MediaQuery.of(context).size.height * 0.02,
+                    ),
+                  ],
+                );
+              }
+            }),
       ),
-      unpressedImage: Image.asset("images/add_image.png"),
-      onTap: () async {
-        var file = await ImagePicker.pickImage(source: ImageSource.gallery);
-        model.filePath = file.path;
-      },
+    );
+  }
+
+  Widget _freeCheckBox() {
+    return Padding(
+      padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.05,
+          right: MediaQuery.of(context).size.height * 0.05),
+      child: Row(
+        children: [
+          Checkbox(
+            value: _free,
+            onChanged: (bool value) {
+              setState(() {
+                _free = value;
+              });
+            },
+          ),
+          Text('Отдам даром',
+              textDirection: TextDirection.ltr,
+              style: TextStyle(
+                  decoration: TextDecoration.none,
+                  color: Colors.black,
+                  fontSize: 16,
+                  fontFamily: 'Open Sans',
+                  fontWeight: FontWeight.w300))
+        ],
+      ),
     );
   }
 
   Widget _nameField() {
-    return new TextFormField(
-      onSaved: (input) => model.name = input,
-      keyboardType: TextInputType.name,
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0),
-          labelText: 'Название товара'),
+    return Padding(
+      padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.05,
+          right: MediaQuery.of(context).size.height * 0.05),
+      child: new TextFormField(
+        onSaved: (input) => model.name = input,
+        keyboardType: TextInputType.name,
+        decoration: const InputDecoration(labelText: 'Название товара'),
+      ),
     );
     // });
   }
 
   Widget _descrField() {
-    return new TextFormField(
-      onSaved: (input) => model.description = input,
-      keyboardType: TextInputType.name,
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0),
-          labelText: 'Описание товара'),
+    return Padding(
+      padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.05,
+          right: MediaQuery.of(context).size.height * 0.05),
+      child: new TextFormField(
+        onSaved: (input) => model.description = input,
+        keyboardType: TextInputType.name,
+        decoration: InputDecoration(labelText: 'Описание товара'),
+      ),
     );
     // });
   }
 
   Widget _wantField() {
-    var namesGrowable = new List<Want>();
-    return new TextFormField(
-      onSaved: (input) {
-        namesGrowable.add(Want(1, input));
-        model.want = namesGrowable;
-      },
-      keyboardType: TextInputType.name,
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0),
-          labelText: 'Что вы хотите взамен'),
-    );
-    // });
-  }
-
-  Widget _addressField() {
-    return new TextFormField(
-      onSaved: (input) => model.address = input,
-      keyboardType: TextInputType.streetAddress,
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0),
-          labelText: 'Расположение'),
+    var listWant = !_free ? new List<Want>() : null;
+    return Visibility(
+      visible: !_free,
+      child: Padding(
+        padding: EdgeInsets.only(
+            left: MediaQuery.of(context).size.width * 0.05,
+            right: MediaQuery.of(context).size.height * 0.05),
+        child: new TextFormField(
+          onSaved: (input) {
+            int id = _selectedWantCategory.id;
+            listWant.add(Want(id, input));
+            model.want = listWant;
+          },
+          keyboardType: TextInputType.name,
+          decoration: const InputDecoration(labelText: 'Что вы хотите взамен'),
+        ),
+      ),
     );
     // });
   }
 
   Widget _cityField() {
-    return new TextFormField(
-      onSaved: (input) => model.city = input,
-      keyboardType: TextInputType.phone,
-      decoration: const InputDecoration(
-          contentPadding: const EdgeInsets.all(20.0), labelText: 'Ваш город'),
+    return Padding(
+      padding: EdgeInsets.only(
+          left: MediaQuery.of(context).size.width * 0.05,
+          right: MediaQuery.of(context).size.height * 0.05),
+      child: new TextFormField(
+        onSaved: (input) => model.city = input,
+        keyboardType: TextInputType.streetAddress,
+        decoration: const InputDecoration(labelText: 'Ваш город'),
+      ),
     );
     // });
   }
@@ -165,13 +309,12 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
                 setState(() {
                   isApiCallProcess = true;
                 });
+                model.address = "";
                 service = new AnnouncementService();
                 service.create(model).then((value) {
                   if (value.status == 200) {
-                    return Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => PersonalAreaPage()));
+                    return Navigator.push(context,
+                        MaterialPageRoute(builder: (context) => BottomPanel()));
                   } else {
                     final snackBar = SnackBar(
                         content: Text("Создание объявления не успешно"));
@@ -209,24 +352,9 @@ class LogoImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     Image image = Image(
-        image: new AssetImage('images/logo_2.png'), width: 65, height: 65);
+        image: new AssetImage('images/logo_2.png'),
+        width: MediaQuery.of(context).size.width * 0.35,
+        height: MediaQuery.of(context).size.width * 0.35);
     return Container(margin: EdgeInsets.only(top: 100), child: image);
-  }
-}
-
-class TextAuth extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-        alignment: Alignment.center,
-        margin: EdgeInsets.only(top: 70),
-        child: Text('Заполнение информации личного кабинета',
-            textDirection: TextDirection.ltr,
-            style: TextStyle(
-                decoration: TextDecoration.none,
-                color: Colors.black,
-                fontSize: 22,
-                fontFamily: 'Open Sans',
-                fontWeight: FontWeight.w700)));
   }
 }

@@ -5,12 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_personal_area_service.dart';
 import 'package:flutter_app_pinhome/model/personal_area_model.dart';
 import 'package:flutter_app_pinhome/wigets/announcement_wiget.dart';
-import 'package:flutter_app_pinhome/wigets/tab_widget.dart';
+import 'package:flutter_app_pinhome/wigets/close_announcement_wiget.dart';
+import 'package:flutter_app_pinhome/wigets/want_wiget.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
-import 'info_page.dart';
+import 'copy_info_page.dart';
 
 class PersonalAreaPage extends StatefulWidget {
   @override
@@ -204,8 +205,8 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
           body: TabBarView(
             children: [
               AnnouncementWidget(scrollController: scrollController),
-              TabWidget(scrollController: scrollController),
-              TabWidget(scrollController: scrollController),
+              WantAnnouncementWidget(scrollController: scrollController),
+              CloseAnnouncementWidget(scrollController: scrollController),
             ],
           ),
         ),
@@ -293,12 +294,12 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
           child: RaisedButton(
             onPressed: () {
               return Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => Info()));
+                  context, MaterialPageRoute(builder: (context) => InfoCpy()));
             },
             color: Colors.amber[300],
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(10.0)),
-            child: Text('Помощь',
+            child: Text('Справка',
                 textDirection: TextDirection.ltr,
                 style: TextStyle(
                     decoration: TextDecoration.none,

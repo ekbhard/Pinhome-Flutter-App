@@ -3,12 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/close_service.dart';
 import 'package:flutter_app_pinhome/model/close_model.dart';
 import 'package:flutter_app_pinhome/model/reason_close.dart';
+import 'package:flutter_app_pinhome/pages/bottom_panel.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 class CustomDialog extends StatefulWidget {
-  final int userId;
+  final int itemId;
 
-  const CustomDialog({Key key, this.userId}) : super(key: key);
+  const CustomDialog({Key key, this.itemId}) : super(key: key);
 
   @override
   _DaialogState createState() => _DaialogState();
@@ -53,6 +54,7 @@ class _DaialogState extends State<CustomDialog> {
 
   Widget _button(ReasonClose element) {
     var name = element.name;
+    var elementId = widget.itemId;
     var reasonCloseId = element.id;
     return Padding(
         padding: const EdgeInsets.all(5.0),
@@ -62,12 +64,21 @@ class _DaialogState extends State<CustomDialog> {
             child: RaisedButton(
               // padding: EdgeInsets.all(50),
               onPressed: () {
-                service.delete(Close.fromReason(reasonCloseId), widget.userId);
+                service
+                    .delete(Close.fromReason(reasonCloseId), elementId)
+                    .then((value) {
+                  if (value == 200) {
+                    return Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BottomPanel()));
+                  } else {
+                    new SnackBar(
+                        content: new Text("Снятие с публикации не удалось"));
+                  }
+                });
               },
               color: Colors.white,
-              // shape: RoundedRectangleBorder(
-              //     side: BorderSide(width: 3, color: Colors.amber[300]),
-              //     borderRadius: new BorderRadius.circular(10.0)),
               child: Text(name,
                   textAlign: TextAlign.center,
                   textDirection: TextDirection.ltr,
