@@ -3,46 +3,44 @@ class AnnouncementCreate {
     this.name,
     this.description,
     this.category,
-    this.want,
     this.city,
-    this.address,
+    this.strWant,
+    this.want,
     this.filePath,
   });
 
   String name;
   String description;
-  String category;
-  List<Want> want;
+  int category;
   String city;
-  String address;
+  String strWant;
+  List<Want> want;
   String filePath;
 
   Map<String, dynamic> toJson() => {
         "name": name,
         "description": description,
-        // "category": category,
-        "category": 1,
-        "want": want != null
-            ? List<dynamic>.from(want.map((x) => x.toJson()))
-            : List.empty(),
+        "category": category,
         "city": city,
-        "address": "address",
+        "str_want": strWant,
+        "want": List<dynamic>.from(want.map((x) => x.toJson())),
       };
 }
 
 class Want {
-  int categoryId;
-  String strWant;
+  Want({
+    this.category,
+  });
+
+  int category;
+
+  factory Want.fromJson(Map<String, dynamic> json) => Want(
+    category: json["category"],
+  );
 
   Map<String, dynamic> toJson() => {
-        "category": categoryId,
-        "str_want": strWant,
-      };
-
-  Want(int categoryId, String strWant) {
-    this.categoryId = categoryId;
-    this.strWant = strWant;
-  }
+    "category": category,
+  };
 }
 
 class AnnouncementResponce {

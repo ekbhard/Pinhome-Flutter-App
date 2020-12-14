@@ -14,7 +14,8 @@ class CloseService {
     String value = await storage.read(key: "token");
     Map<String, String> headers = {
       'content-type': 'application/json',
-      'x-access-token': value};
+      'x-access-token': value
+    };
     try {
       final response = await http.post(url + deleteUrl,
           headers: headers, body: json.encode(requestModel));

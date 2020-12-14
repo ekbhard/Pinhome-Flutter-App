@@ -1,10 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:flutter_app_pinhome/model/all_announcements.dart';
-import 'package:flutter_app_pinhome/model/announsment.dart';
-import 'package:flutter_app_pinhome/model/categiries.dart';
-import 'package:flutter_app_pinhome/model/crate_anouns_request.dart';
 import 'package:flutter_app_pinhome/model/reference_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -24,5 +20,4 @@ class InfoService {
     }
     return Reference.fromJson(json.decode(response.body));
   }
-
 }

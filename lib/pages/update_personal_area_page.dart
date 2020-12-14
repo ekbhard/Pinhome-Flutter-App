@@ -5,16 +5,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_personal_area_service.dart';
 import 'package:flutter_app_pinhome/model/personal_area_model.dart';
-import 'package:flutter_app_pinhome/pages/auth_page.dart';
+import 'package:flutter_app_pinhome/pages/bottom_panel.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imagebutton/imagebutton.dart';
 
-class CreatePersonalAreaPage extends StatefulWidget {
+class UpdatePersonalAreaPage extends StatefulWidget {
   @override
-  _CreatePersonalAreaPageState createState() => _CreatePersonalAreaPageState();
+  _UpdatePersonalAreaPageState createState() => _UpdatePersonalAreaPageState();
 }
 
-class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
+class _UpdatePersonalAreaPageState extends State<UpdatePersonalAreaPage> {
   GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   bool isApiCallProcess = false;
   bool _autoValidate = false;
@@ -45,8 +45,7 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
               // mainAxisAlignment: MainAxisAlignment.center,
               // crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
-                LogoImage(),
-                TextAuth(),
+                _text(),
                 _usernameField(),
                 _surnameField(),
                 _patronymicField(),
@@ -78,23 +77,6 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
         )));
   }
 
-  Widget _buttonAvatar(BuildContext context) {
-    return ImageButton(
-      children: <Widget>[],
-      width: 91,
-      height: 36,
-      paddingTop: 5,
-      pressedImage: Image.asset(
-        "images/add_image.png",
-      ),
-      unpressedImage: Image.asset("images/add_image.png"),
-      onTap: () async {
-        var file = await ImagePicker.pickImage(source: ImageSource.gallery);
-        personalAreaRequestModel.filePath = file.path;
-      },
-    );
-  }
-
   Widget _usernameField() {
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -102,7 +84,7 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
         onSaved: (input) => personalAreaRequestModel.name = input,
         keyboardType: TextInputType.name,
         validator: (name) {
-          Pattern pattern = r'^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$';
+          Pattern pattern = r'[А-Я][а-яА-Я][^#&<>\"~;$^%{}?]{1,20}$';
           RegExp regex = new RegExp(pattern);
           if (!regex.hasMatch(name))
             return 'Invalid username';
@@ -123,7 +105,7 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
         onSaved: (input) => personalAreaRequestModel.surname = input,
         keyboardType: TextInputType.name,
         validator: (name) {
-          Pattern pattern = r'^[A-Za-z0-9]+(?:[ _-][A-Za-z0-9]+)*$';
+          Pattern pattern = r'[А-Я][а-яА-Я][^#&<>\"~;$^%{}?]{1,20}$';
           RegExp regex = new RegExp(pattern);
           if (!regex.hasMatch(name))
             return 'Invalid surname';
@@ -162,6 +144,22 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
       ),
     );
     // });
+  }
+
+  Widget _text() {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Container(
+          alignment: Alignment.center,
+          child: Text('Редактирование информации личного кабинета',
+              textDirection: TextDirection.ltr,
+              style: TextStyle(
+                  decoration: TextDecoration.none,
+                  color: Colors.black,
+                  fontSize: 22,
+                  fontFamily: 'Open Sans',
+                  fontWeight: FontWeight.w700))),
+    );
   }
 
   Widget _phoneNumberField() {
@@ -209,14 +207,15 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
                 });
                 personalAreaService = new PersonalAreaService();
                 personalAreaService
-                    .create(personalAreaRequestModel)
+                    .update(personalAreaRequestModel)
                     .then((value) {
-                  if (value.status == 200) {
+                  if (value.status == 201) {
                     return Navigator.push(context,
-                        MaterialPageRoute(builder: (context) => AuthPage()));
+                        MaterialPageRoute(builder: (context) => BottomPanel()));
                   } else {
                     final snackBar = SnackBar(
-                        content: Text("Создание личного кабинета не успешно"));
+                        content:
+                            Text("Обновление личного кабинета не успешно"));
                     scaffoldKey.currentState.showSnackBar(snackBar);
                   }
                 });
@@ -225,7 +224,7 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
             color: Colors.amber[300],
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(10.0)),
-            child: Text('Подтвердить',
+            child: Text('Обновить',
                 textDirection: TextDirection.ltr,
                 style: TextStyle(
                     decoration: TextDecoration.none,
@@ -244,36 +243,5 @@ class _CreatePersonalAreaPageState extends State<CreatePersonalAreaPage> {
       return true;
     }
     return false;
-  }
-}
-
-class LogoImage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    Image image = Image(
-        image: new AssetImage('images/logo_2.png'), width: 65, height: 65);
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(child: image),
-    );
-  }
-}
-
-class TextAuth extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Container(
-          alignment: Alignment.center,
-          child: Text('Заполнение информации личного кабинета',
-              textDirection: TextDirection.ltr,
-              style: TextStyle(
-                  decoration: TextDecoration.none,
-                  color: Colors.black,
-                  fontSize: 22,
-                  fontFamily: 'Open Sans',
-                  fontWeight: FontWeight.w700))),
-    );
   }
 }

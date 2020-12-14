@@ -25,7 +25,7 @@ class HelloPage extends StatelessWidget {
                     fontSize: 36,
                     fontFamily: 'PTSans',
                     fontWeight: FontWeight.w700)),
-            Text('Сервис обмена товаров',
+            Text('Сервис обмена вещей',
                 textDirection: TextDirection.ltr,
                 style: TextStyle(
                     decoration: TextDecoration.none,

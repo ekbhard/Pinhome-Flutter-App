@@ -2,8 +2,10 @@ import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_app_pinhome/api/api_auth_service.dart';
 import 'package:flutter_app_pinhome/api/api_personal_area_service.dart';
 import 'package:flutter_app_pinhome/model/personal_area_model.dart';
+import 'package:flutter_app_pinhome/pages/update_personal_area_page.dart';
 import 'package:flutter_app_pinhome/wigets/announcement_wiget.dart';
 import 'package:flutter_app_pinhome/wigets/close_announcement_wiget.dart';
 import 'package:flutter_app_pinhome/wigets/want_wiget.dart';
@@ -11,6 +13,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:hexcolor/hexcolor.dart';
 import 'package:sliding_up_panel/sliding_up_panel.dart';
 
+import 'auth_page.dart';
 import 'copy_info_page.dart';
 
 class PersonalAreaPage extends StatefulWidget {
@@ -23,6 +26,7 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
   final storage = new FlutterSecureStorage();
   final panelController = PanelController();
   PersonalAreaService personalAreaService;
+  AuthService authService;
   String url;
   final double tabBarHeight = 100;
 
@@ -32,6 +36,8 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
     personalAreaService = new PersonalAreaService();
     model = personalAreaService.get();
     personalAreaService.getUserAvatar().then((value) => url = value);
+    authService = new AuthService();
+
     // loadImageFromPreferences();
   }
 
@@ -42,14 +48,10 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
 
   Widget buildPersonalAreaPage() {
     return SlidingUpPanel(
-      // controller: panelController,
-      // maxHeight: MediaQuery.of(context).size.height - tabBarHeight,
       maxHeight: MediaQuery.of(context).size.height - tabBarHeight,
-      minHeight: 50,
-      // maxHeight: MediaQuery.of(context).size.height - tabBarHeight,
+      minHeight: MediaQuery.of(context).size.height * 0.1,
       panelBuilder: (scrollController) => buildSlidingPanel(
         scrollController: scrollController,
-        // panelController: panelController,
       ),
       body: Center(
           child: Container(
@@ -62,23 +64,39 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
                       return Column(
                         children: <Widget>[
                           Container(
-                              height: 200,
+                              height: MediaQuery.of(context).size.height * 0.3,
+                              width: MediaQuery.of(context).size.width * 0.99,
                               alignment: Alignment.center,
-                              margin: EdgeInsets.only(right: 10, top: 10),
+                              // margin: EdgeInsets.only(right: 10, top: 10),
                               child: Row(
                                 children: <Widget>[
                                   Container(
                                       margin: EdgeInsets.only(
-                                          left: 30, right: 30, top: 70),
+                                          left: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.05,
+                                          top: MediaQuery.of(
+                                                      context)
+                                                  .size
+                                                  .height *
+                                              0.1),
                                       alignment: Alignment.topLeft,
-                                      width: 150,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.45,
                                       child: CircleAvatar(
                                         radius: 80,
                                         backgroundImage:
                                             NetworkImage(snapshot.data.imgUrl),
                                       )),
                                   Container(
-                                    margin: EdgeInsets.only(top: 70),
+                                    margin: EdgeInsets.only(
+                                        right:
+                                            MediaQuery.of(context).size.width *
+                                                0.05,
+                                        top:
+                                            MediaQuery.of(context).size.height *
+                                                0.1),
                                     alignment: Alignment.topRight,
                                     child: Column(
                                       children: <Widget>[
@@ -246,7 +264,12 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
           minWidth: 250,
           height: 40,
           child: RaisedButton(
-            onPressed: () {},
+            onPressed: () {
+              return Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (context) => UpdatePersonalAreaPage()));
+            },
             color: Colors.amber[300],
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(10.0)),
@@ -318,7 +341,18 @@ class _PersonalAreaPageState extends State<PersonalAreaPage> {
           minWidth: 250,
           height: 40,
           child: RaisedButton(
-            onPressed: () {},
+            onPressed: () {
+              authService.logout().then((value) {
+                if (value == 200) {
+                  return Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => AuthPage()));
+                } else {
+                  final snackBar =
+                      SnackBar(content: Text('Выход из приложения не успешен'));
+                  Scaffold.of(context).showSnackBar(snackBar);
+                }
+              });
+            },
             color: Colors.amber[300],
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(10.0)),

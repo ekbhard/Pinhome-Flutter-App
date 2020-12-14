@@ -26,6 +26,7 @@ class Announcement {
     this.images,
     this.announcement,
     this.deleted,
+    this.strWant,
   });
 
   String description;
@@ -43,6 +44,7 @@ class Announcement {
   List<AnnImage> images;
   int announcement;
   bool deleted;
+  String strWant;
 
   factory Announcement.fromJson(Map<String, dynamic> json) => Announcement(
         description: json["description"],
@@ -56,6 +58,7 @@ class Announcement {
             List<Want>.from(json["want"].map((x) => Want.fromJson(x))).length ==
                 0,
         name: json["name"],
+        strWant: json["str_want"],
         category: json["category"],
         address: json["address"],
         id: json["id"],

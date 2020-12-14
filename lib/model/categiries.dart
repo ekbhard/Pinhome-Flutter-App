@@ -39,7 +39,7 @@ class Category {
 
   Map<String, dynamic> toJson() => {
     "parent_id": parentId == null ? null : parentId,
-    "id": id,
+    "id": id.toString(),
     "name": name,
   };
 }

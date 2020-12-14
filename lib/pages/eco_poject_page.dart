@@ -219,7 +219,8 @@ class Project extends StatelessWidget {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(charity.charitiesSocialNetworks.first.socialNetworks,
+                  child: Text(
+                      charity.charitiesSocialNetworks.first.socialNetworks,
                       textDirection: TextDirection.ltr,
                       style: TextStyle(
                           decoration: TextDecoration.none,

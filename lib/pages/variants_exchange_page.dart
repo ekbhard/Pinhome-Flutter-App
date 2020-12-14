@@ -1,24 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_announcement_service.dart';
-import 'package:flutter_app_pinhome/model/all_announcements.dart';
-import 'package:flutter_app_pinhome/pages/announcement_page.dart';
-import 'package:flutter_app_pinhome/pages/closed_announcement_page.dart';
+import 'package:flutter_app_pinhome/model/recommended.dart';
+import 'package:flutter_app_pinhome/pages/show_announcement_page.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-class CloseAnnouncementWidget extends StatefulWidget {
-  const CloseAnnouncementWidget({
-    Key key,
-    @required this.scrollController,
-  }) : super(key: key);
-  final ScrollController scrollController;
+class VariantsExchangePage extends StatefulWidget {
+  final int id;
+
+  const VariantsExchangePage({Key key, this.id}) : super(key: key);
 
   @override
-  _CloseAnnouncementWidgetState createState() =>
-      _CloseAnnouncementWidgetState();
+  _VariantsExchangePageState createState() => _VariantsExchangePageState();
 }
 
-class _CloseAnnouncementWidgetState extends State<CloseAnnouncementWidget> {
-  Future<List<AnnouncementElement>> model;
+class _VariantsExchangePageState extends State<VariantsExchangePage> {
+  Future<List<Result>> model;
   bool isLoading = false;
   AnnouncementService service;
 
@@ -27,38 +23,51 @@ class _CloseAnnouncementWidgetState extends State<CloseAnnouncementWidget> {
   @override
   void initState() {
     service = new AnnouncementService();
-    model = service.getClosed();
+    model = service.geRecommended(widget.id);
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: getBody(),
-    );
+        appBar: AppBar(
+          title: Text("Варианты обмена на вещь"),
+        ),
+        body: Container(
+            margin:
+                EdgeInsets.only(top: MediaQuery.of(context).size.height * 0.02),
+            child: getBody()));
   }
 
   Widget getBody() {
     return FutureBuilder(
         future: model,
         builder: (context, AsyncSnapshot snapshot) {
-          if (!snapshot.hasData) {
-            return Center(child: CircularProgressIndicator());
-          } else {
-            return Container(
-                child: ListView.builder(
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, int index) {
-                      return getCard(snapshot.data[index]);
-                    }));
-          }
+          if (snapshot.hasData) {
+            if (snapshot.data.length != 0) {
+              return Container(
+                  child: ListView.builder(
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (context, int index) {
+                        return getCard(snapshot.data[index]);
+                      }));
+            } else {
+              return Container(
+                child: Center(
+                    child: Text(
+                        "К сожалению, для этой вещи не нашлось вариантов обмена.\nПопробуйте найти подходящие категрии в поиске.")),
+              );
+            }
+          } else
+            return Container();
         });
   }
 
-  Widget getCard(AnnouncementElement element) {
+  Widget getCard(Result element) {
     var name = element.name;
-    var want =
-    element.strWant != null ? element.strWant : "Эта вещь отдается даром";
+    var want = element.want.length != 0
+        ? element.want.first["str_want"]
+        : "Эта вещь отдается даром";
     var picUrl = element.images.first.imagePath;
     return Container(
       height: 100,
@@ -71,7 +80,7 @@ class _CloseAnnouncementWidgetState extends State<CloseAnnouncementWidget> {
                     return Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => ClosedAnnounsmentPage(
+                            builder: (context) => ShowAnnounsmentPage(
                                   id: element.id,
                                   title: element.name,
                                 )));
@@ -82,10 +91,7 @@ class _CloseAnnouncementWidgetState extends State<CloseAnnouncementWidget> {
                     decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(60 / 2),
                         image: DecorationImage(
-                            colorFilter: ColorFilter.mode(
-                                Colors.grey, BlendMode.saturation),
-                            fit: BoxFit.cover,
-                            image: NetworkImage(picUrl))),
+                            fit: BoxFit.cover, image: NetworkImage(picUrl))),
                   ),
                   title: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

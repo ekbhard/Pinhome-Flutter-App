@@ -55,7 +55,8 @@ class _AnnouncementWidgetState extends State<AnnouncementWidget> {
 
   Widget getCard(AnnouncementElement element) {
     var name = element.name;
-    var want = element.want.length != 0 ? element.want.first["str_want"]:"Этот товар отдается бесплатно";
+    var want =
+        element.strWant != null ? element.strWant : "Эта вещь отдается даром";
     var picUrl = element.images.first.imagePath;
     return Container(
       height: 100,
@@ -68,8 +69,7 @@ class _AnnouncementWidgetState extends State<AnnouncementWidget> {
                     return Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) =>
-                                AnnounsmentPage(
+                            builder: (context) => AnnounsmentPage(
                                   id: element.id,
                                   title: element.name,
                                 )));

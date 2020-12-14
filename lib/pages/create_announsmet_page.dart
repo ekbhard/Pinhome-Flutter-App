@@ -8,6 +8,7 @@ import 'package:flutter_app_pinhome/model/categiries.dart';
 import 'package:flutter_app_pinhome/model/crate_anouns_request.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:imagebutton/imagebutton.dart';
+import 'package:multiselect_formfield/multiselect_formfield.dart';
 
 import 'bottom_panel.dart';
 
@@ -26,8 +27,9 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
   final scaffoldKey = GlobalKey<ScaffoldState>();
   AnnouncementService service;
   Category _selectedItemCategory;
-  Category _selectedWantCategory;
   File _file;
+  List _selectedValues;
+  final formKey = new GlobalKey<FormState>();
 
   @override
   void initState() {
@@ -43,11 +45,11 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
     return Scaffold(
         key: scaffoldKey,
         appBar: AppBar(
-          title: new Text("Добавление товара"),
+          title: new Text("Добавление вещи"),
           leading: IconButton(
-            icon: Icon(Icons.arrow_back, color: Colors.black),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
+              icon: Icon(Icons.arrow_back, color: Colors.black),
+              onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => BottomPanel()))),
         ),
         body: Center(
             child: Container(
@@ -86,9 +88,9 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
                 _dropDownForItemCategory(),
                 _freeCheckBox(),
                 _wantField(),
-                _dropDownForWantCategory(),
+                _dropDownForWant(),
                 _cityField(),
-                _buttonField(),
+                _submitButtonField(),
               ],
             ),
           ),
@@ -109,10 +111,23 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
     return items;
   }
 
+  List<DropdownMenuItem<Category>> buildItems(List<Category> categories) {
+    List<DropdownMenuItem<Category>> items = List();
+    for (Category category in categories) {
+      items.add(
+        DropdownMenuItem(
+          value: category,
+          child: Text(category.name),
+        ),
+      );
+    }
+    return items;
+  }
+
   onChangeDropDownForItemCategory(Category selectedCategory) {
     setState(() {
       _selectedItemCategory = selectedCategory;
-      model.category = selectedCategory.id.toString();
+      model.category = selectedCategory.id;
     });
   }
 
@@ -155,13 +170,7 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
     );
   }
 
-  onChangeDropDownForWantCategory(Category selectedCategory) {
-    setState(() {
-      _selectedWantCategory = selectedCategory;
-    });
-  }
-
-  Widget _dropDownForWantCategory() {
+  Widget _dropDownForWant() {
     return Visibility(
       visible: !_free,
       child: new Container(
@@ -180,17 +189,10 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
                       height: MediaQuery.of(context).size.height * 0.02,
                     ),
                     Padding(
-                      padding: EdgeInsets.only(
-                          left: MediaQuery.of(context).size.width * 0.05,
-                          right: MediaQuery.of(context).size.height * 0.05),
-                      child: DropdownButton(
-                        isExpanded: true,
-                        hint: Text("Выберете категорию вещи на обмен"),
-                        value: _selectedWantCategory,
-                        items: buildDropdownMenuItems(snapshot.data.category),
-                        onChanged: onChangeDropDownForWantCategory,
-                      ),
-                    ),
+                        padding: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width * 0.05,
+                            right: MediaQuery.of(context).size.height * 0.05),
+                        child: buildDropDown(snapshot.data.category)),
                     SizedBox(
                       width: MediaQuery.of(context).size.width * 0.99,
                       height: MediaQuery.of(context).size.height * 0.02,
@@ -199,6 +201,38 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
                 );
               }
             }),
+      ),
+    );
+  }
+
+  Widget buildDropDown(List<Category> list) {
+    var data = list.map((category) => category.toJson()).toList();
+    return Container(
+      padding: EdgeInsets.all(8),
+      width: MediaQuery.of(context).size.width * 0.99,
+      height: MediaQuery.of(context).size.width * 0.55,
+      child: MultiSelectFormField(
+        title: Text("Категории желаемых вещей на обмен"),
+        autovalidate: false,
+        validator: (value) {
+          if (value == null || value.length == 0) {
+            return 'Список категорий не может быть пустым';
+          } else if (value.length > 5) return 'Не более 5 категорий';
+        },
+        dataSource: data,
+        textField: 'name',
+        valueField: 'id',
+        okButtonLabel: 'OK',
+        cancelButtonLabel: 'CANCEL',
+        required: !_free,
+        initialValue: _selectedValues,
+        onSaved: (value) {
+          if (value == null) return;
+          setState(() {
+            _selectedValues = value;
+            model.want = _selectedValues;
+          });
+        },
       ),
     );
   }
@@ -239,7 +273,7 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
       child: new TextFormField(
         onSaved: (input) => model.name = input,
         keyboardType: TextInputType.name,
-        decoration: const InputDecoration(labelText: 'Название товара'),
+        decoration: const InputDecoration(labelText: 'Название вещи'),
       ),
     );
     // });
@@ -253,14 +287,13 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
       child: new TextFormField(
         onSaved: (input) => model.description = input,
         keyboardType: TextInputType.name,
-        decoration: InputDecoration(labelText: 'Описание товара'),
+        decoration: InputDecoration(labelText: 'Описание вещи'),
       ),
     );
     // });
   }
 
   Widget _wantField() {
-    var listWant = !_free ? new List<Want>() : null;
     return Visibility(
       visible: !_free,
       child: Padding(
@@ -269,9 +302,7 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
             right: MediaQuery.of(context).size.height * 0.05),
         child: new TextFormField(
           onSaved: (input) {
-            int id = _selectedWantCategory.id;
-            listWant.add(Want(id, input));
-            model.want = listWant;
+            model.strWant = input;
           },
           keyboardType: TextInputType.name,
           decoration: const InputDecoration(labelText: 'Что вы хотите взамен'),
@@ -295,7 +326,7 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
     // });
   }
 
-  Widget _buttonField() {
+  Widget _submitButtonField() {
     return Container(
       alignment: Alignment.center,
       margin: EdgeInsets.all(24),
@@ -309,7 +340,6 @@ class _CreateAnnounsmentPageState extends State<CreateAnnounsmentPage> {
                 setState(() {
                   isApiCallProcess = true;
                 });
-                model.address = "";
                 service = new AnnouncementService();
                 service.create(model).then((value) {
                   if (value.status == 200) {

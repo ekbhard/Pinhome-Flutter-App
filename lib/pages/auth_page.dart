@@ -18,8 +18,8 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   bool hidePassword = true;
   bool isApiCallProcess = false;
-  GlobalKey<FormState> globalFormKey = GlobalKey<FormState>();
   LoginRequestModel loginRequestModel;
+  GlobalKey<FormState> _globalFormKey = GlobalKey<FormState>();
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
@@ -52,40 +52,53 @@ class _AuthPageState extends State<AuthPage> {
           alignment: Alignment.center,
           color: Colors.white,
           child: Form(
-            key: globalFormKey,
+            key: _globalFormKey,
             child: ListView(
               children: <Widget>[
                 LogoImage(),
                 TextAuth(),
-                new TextFormField(
-                    keyboardType: TextInputType.name,
-                    // validator: (input) => !input.contains('@')
-                    //     ? "Email Id should be valid"
-                    //     : null,
-                    onSaved: (input) => loginRequestModel.username = input,
-                    decoration: const InputDecoration(
-                        icon: Icon(Icons.account_box),
-                        contentPadding: const EdgeInsets.all(20.0),
-                        labelText: 'Логин')),
+                Padding(
+                  padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width * 0.05,
+                      right: MediaQuery.of(context).size.height * 0.05),
+                  child: new TextFormField(
+                      // controller: _controller,
+                      // autofocus: false,
+                      keyboardType: TextInputType.name,
+                      // validator: (input) => !input.contains('@')
+                      //     ? "Email Id should be valid"
+                      //     : null,
+                      onSaved: (input) => loginRequestModel.username = input,
+                      decoration: const InputDecoration(
+                          icon: Icon(Icons.account_box),
+                          contentPadding: const EdgeInsets.all(20.0),
+                          labelText: 'Логин')),
+                ),
                 // _usernameField(),
-                new TextFormField(
-                    obscureText: true,
-                    onSaved: (input) => loginRequestModel.password = input,
-                    validator: (input) => input.length < 3
-                        ? "Password should be more than 3 characters"
-                        : null,
-                    maxLength: 20,
-                    decoration: const InputDecoration(
-                        icon: Icon(Icons.visibility_off),
-                        contentPadding: const EdgeInsets.all(20.0),
-                        labelText: 'Пароль')),
+                Padding(
+                  padding: EdgeInsets.only(
+                      left: MediaQuery.of(context).size.width * 0.05,
+                      right: MediaQuery.of(context).size.height * 0.05),
+                  child: new TextFormField(
+                      // controller: _controller2,
+                      obscureText: true,
+                      onSaved: (input) => loginRequestModel.password = input,
+                      validator: (input) => input.length < 3
+                          ? "Password should be more than 3 characters"
+                          : null,
+                      maxLength: 20,
+                      decoration: const InputDecoration(
+                          icon: Icon(Icons.visibility_off),
+                          contentPadding: const EdgeInsets.all(20.0),
+                          labelText: 'Пароль')),
+                ),
                 // _passwordField(),
                 Container(
                   alignment: Alignment.center,
                   margin: EdgeInsets.all(24),
                   child: ButtonTheme(
-                      minWidth: 250,
-                      height: 40,
+                      minWidth: MediaQuery.of(context).size.width * 0.6,
+                      height: MediaQuery.of(context).size.height * 0.06,
                       child: RaisedButton(
                         onPressed: () {
                           if (validateAndSave()) {
@@ -158,90 +171,8 @@ class _AuthPageState extends State<AuthPage> {
         )));
   }
 
-  Widget _passwordField() {
-    return Container(
-        child: TextFormField(
-      obscureText: true,
-      onSaved: (input) => loginRequestModel.password = input,
-      validator: (input) =>
-          input.length < 3 ? "Password should be more than 3 characters" : null,
-      maxLength: 20,
-      decoration: const InputDecoration(
-          icon: Icon(Icons.visibility_off),
-          contentPadding: const EdgeInsets.all(20.0),
-          labelText: 'Password',
-          hintText: 'Enter password'),
-    ));
-  }
-
-  Widget _usernameField() {
-    return Container(
-        child: TextFormField(
-            keyboardType: TextInputType.name,
-            // validator: (input) => !input.contains('@')
-            //     ? "Email Id should be valid"
-            //     : null,
-            onSaved: (input) => loginRequestModel.username = input,
-            decoration: const InputDecoration(
-                icon: Icon(Icons.account_box),
-                contentPadding: const EdgeInsets.all(20.0),
-                labelText: 'Name',
-                hintText: 'someone@company.com')));
-  }
-
-  Widget _buttonField() {
-    return Container(
-      alignment: Alignment.center,
-      margin: EdgeInsets.all(24),
-      child: ButtonTheme(
-          minWidth: 250,
-          height: 40,
-          child: RaisedButton(
-            onPressed: () {
-              print(loginRequestModel.toJson());
-
-              setState(() {
-                isApiCallProcess = true;
-              });
-
-              AuthService apiService = new AuthService();
-              apiService.login(loginRequestModel).then((value) {
-                if (value != null) {
-                  setState(() {
-                    isApiCallProcess = false;
-                  });
-                  if (value == null) {
-                    return LoginPage();
-                  }
-
-                  if (value.token.isNotEmpty) {
-                    final snackBar =
-                        SnackBar(content: Text("Login Successful"));
-                    scaffoldKey.currentState.showSnackBar(snackBar);
-                  } else {
-                    final snackBar = SnackBar(content: Text(value.error));
-                    scaffoldKey.currentState.showSnackBar(snackBar);
-                  }
-                }
-              });
-            },
-            color: Colors.amber[300],
-            shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10.0)),
-            child: Text('Войти',
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                    decoration: TextDecoration.none,
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Open Sans',
-                    fontWeight: FontWeight.w300)),
-          )),
-    );
-  }
-
   bool validateAndSave() {
-    final form = globalFormKey.currentState;
+    final form = _globalFormKey.currentState;
     if (form.validate()) {
       form.save();
       return true;

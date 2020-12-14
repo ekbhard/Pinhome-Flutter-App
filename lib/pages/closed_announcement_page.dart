@@ -1,30 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_announcement_service.dart';
 import 'package:flutter_app_pinhome/model/announsment.dart';
-import 'package:flutter_app_pinhome/pages/variants_exchange_page.dart';
-import 'package:flutter_app_pinhome/wigets/custom_dialog.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-class AnnounsmentPage extends StatefulWidget {
+class ClosedAnnounsmentPage extends StatefulWidget {
   final int id;
   final String title;
 
-  AnnounsmentPage({Key key, @required this.id, this.title}) : super(key: key);
+  ClosedAnnounsmentPage({Key key, @required this.id, this.title})
+      : super(key: key);
 
   @override
-  _AnnounsmentPageState createState() => _AnnounsmentPageState();
+  _ClosedAnnounsmentPageState createState() => _ClosedAnnounsmentPageState();
 }
 
-class _AnnounsmentPageState extends State<AnnounsmentPage> {
+class _ClosedAnnounsmentPageState extends State<ClosedAnnounsmentPage> {
   Future<Announcement> model;
   AnnouncementService service;
-  bool _free;
 
   @override
   void initState() {
     super.initState();
     service = new AnnouncementService();
     model = service.getById(widget.id);
+    // loadImageFromPreferences();
   }
 
   @override
@@ -51,7 +50,7 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
                             TextRegular(text: snapshot.data.description),
                             TextBolt(
                                 text: !snapshot.data.free
-                                    ? "Хочу обменять на"
+                                    ? "Хотел обменять на"
                                     : "Этот предмет отдается даром"),
                             Visibility(
                               visible: !snapshot.data.free,
@@ -71,102 +70,10 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
                                         : "")),
                             TextBolt(text: "Местонахождение"),
                             TextRegular(text: snapshot.data.city),
-                            _variantsButton(),
-                            _editButtonField(),
-                            _deleteButton(snapshot.data.id)
                           ],
                         ));
                       }
                     }))));
-  }
-
-  _createAlertDialog(BuildContext context, int itemId) {
-    return showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text("Выберите причину"),
-            actions: <Widget>[CustomDialog(itemId: itemId)],
-          );
-        });
-  }
-
-  Widget _variantsButton() {
-    return Container(
-      alignment: Alignment.center,
-      child: ButtonTheme(
-          minWidth: 250,
-          height: 40,
-          child: RaisedButton(
-            onPressed: () {
-              return Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) =>
-                          VariantsExchangePage(id: widget.id)));
-            },
-            color: Colors.amber[300],
-            shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10.0)),
-            child: Text('Варианты обмена',
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                    decoration: TextDecoration.none,
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Open Sans',
-                    fontWeight: FontWeight.w300)),
-          )),
-    );
-  }
-
-  Widget _editButtonField() {
-    return Container(
-      alignment: Alignment.center,
-      child: ButtonTheme(
-          minWidth: 250,
-          height: 40,
-          child: RaisedButton(
-            onPressed: () {},
-            color: Colors.amber[300],
-            shape: RoundedRectangleBorder(
-                borderRadius: new BorderRadius.circular(10.0)),
-            child: Text('Редактировать',
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                    decoration: TextDecoration.none,
-                    color: Colors.black,
-                    fontSize: 16,
-                    fontFamily: 'Open Sans',
-                    fontWeight: FontWeight.w300)),
-          )),
-    );
-  }
-
-  Widget _deleteButton(int itemId) {
-    return Container(
-        alignment: Alignment.center,
-        child: ButtonTheme(
-            minWidth: 250,
-            height: 40,
-            child: RaisedButton(
-              // padding: EdgeInsets.all(50),
-              onPressed: () {
-                _createAlertDialog(context, itemId);
-              },
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 3, color: Colors.amber[300]),
-                  borderRadius: new BorderRadius.circular(10.0)),
-              child: Text('Снять с публикации',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(
-                      decoration: TextDecoration.none,
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontFamily: 'Open Sans',
-                      fontWeight: FontWeight.w300)),
-            )));
   }
 }
 

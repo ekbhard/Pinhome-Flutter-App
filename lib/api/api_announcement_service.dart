@@ -5,6 +5,7 @@ import 'package:flutter_app_pinhome/model/all_announcements.dart';
 import 'package:flutter_app_pinhome/model/announsment.dart';
 import 'package:flutter_app_pinhome/model/categiries.dart';
 import 'package:flutter_app_pinhome/model/crate_anouns_request.dart';
+import 'package:flutter_app_pinhome/model/recommended.dart';
 import 'package:flutter_app_pinhome/model/want_tab.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
@@ -25,6 +26,32 @@ class AnnouncementService {
     return AnnouncementAll.fromJson(json.decode(response.body)).announcement;
   }
 
+  Future<List<AnnouncementElement>> search(
+      String query, String category) async {
+    String loginUrl =
+        "/api/search_announcements?query=" + query + "&category=" + category;
+    String value = await storage.read(key: "token");
+    Map<String, String> headers = {'x-access-token': value};
+    final response = await http.get(url + loginUrl, headers: headers);
+    if (response.statusCode != 200) {
+      print(response.body);
+      throw Exception(response.body);
+    }
+    return AnnouncementAll.fromJson(json.decode(response.body)).announcement;
+  }
+
+  Future<List<Result>> geRecommended(int id) async {
+    String loginUrl = "/api/recommended_for_want/" + id.toString();
+    String value = await storage.read(key: "token");
+    Map<String, String> headers = {'x-access-token': value};
+    final response = await http.get(url + loginUrl, headers: headers);
+    if (response.statusCode != 200) {
+      print(response.body);
+      throw Exception(response.body);
+    }
+    return Recommended.fromJson(json.decode(response.body)).result;
+  }
+
   Future<List<WantTab>> getWantTab() async {
     String loginUrl = "/api/wants_for_current_user";
     String value = await storage.read(key: "token");
@@ -34,7 +61,8 @@ class AnnouncementService {
       print(response.body);
       throw Exception(response.body);
     }
-    List<WantTab> list = List<WantTab>.from(json.decode(response.body).map((x) => WantTab.fromJson(x)));
+    List<WantTab> list = List<WantTab>.from(
+        json.decode(response.body).map((x) => WantTab.fromJson(x)));
     return list;
   }
 

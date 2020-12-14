@@ -54,7 +54,8 @@ class _WantAnnouncementWidgetState extends State<WantAnnouncementWidget> {
   }
 
   Widget getCard(WantTab element) {
-    var want = element.strWant;
+    var want =
+    element.wantCat.name != null ? element.wantCat.name : "Эта вещь отдается даром";
     return Container(
       width: MediaQuery.of(context).size.width * 0.99,
       height: MediaQuery.of(context).size.height * 0.15,
@@ -67,7 +68,11 @@ class _WantAnnouncementWidgetState extends State<WantAnnouncementWidget> {
                   title: Row(
                     children: [
                       Container(
-                        margin: EdgeInsets.only(right: 50),
+                        alignment: Alignment.center,
+                        width: MediaQuery.of(context).size.width * 0.50,
+                        height: MediaQuery.of(context).size.height * 0.30,
+                        // margin: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.05),
+                        margin: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.05),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -100,7 +105,7 @@ class _WantAnnouncementWidgetState extends State<WantAnnouncementWidget> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.all(8.0),
+                        padding: const EdgeInsets.all(4.0),
                         child: IconButton(
                           icon: Icon(Icons.clear),
                           iconSize: MediaQuery.of(context).size.height * 0.05,

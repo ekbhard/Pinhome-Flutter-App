@@ -1,11 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_app_pinhome/pages/chat.dart';
 import 'package:flutter_app_pinhome/pages/create_announsmet_page.dart';
 import 'package:flutter_app_pinhome/pages/personal_area_page.dart';
 import 'package:flutter_app_pinhome/pages/search.dart';
-
-import 'chat.dart';
 
 class BottomPanel extends StatefulWidget {
   @override
@@ -13,9 +10,8 @@ class BottomPanel extends StatefulWidget {
 }
 
 class _BottomPanelState extends State<BottomPanel> {
-  int _currentIndex = 1;
+  int _currentIndex = 0;
   final List<Widget> _children = [
-    ChatPage(),
     PersonalAreaPage(),
     CreateAnnounsmentPage(),
     SearchPage()
@@ -37,8 +33,6 @@ class _BottomPanelState extends State<BottomPanel> {
           showUnselectedLabels: false,
           onTap: onTappedBar,
           items: [
-            BottomNavigationBarItem(
-                icon: Image.asset('images/chat.png'), title: Text("chat")),
             BottomNavigationBarItem(
                 icon: Image.asset('images/profile.png'),
                 title: Text("profile")),

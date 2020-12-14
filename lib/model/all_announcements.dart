@@ -2,8 +2,6 @@
 //
 //     final announcement = announcementFromJson(jsonString);
 
-
-
 class AnnouncementAll {
   AnnouncementAll({
     this.announcement,
@@ -38,6 +36,7 @@ class AnnouncementElement {
     this.user,
     this.category,
     this.want,
+    this.strWant,
   });
 
   String description;
@@ -54,6 +53,7 @@ class AnnouncementElement {
   int user;
   int category;
   List<dynamic> want;
+  String strWant;
 
   factory AnnouncementElement.fromJson(Map<String, dynamic> json) =>
       AnnouncementElement(
@@ -65,6 +65,7 @@ class AnnouncementElement {
         id: json["id"],
         address: json["address"],
         saled: json["saled"],
+        strWant: json["str_want"],
         recentlyViewed:
             List<dynamic>.from(json["recently_viewed"].map((x) => x)),
         name: json["name"],

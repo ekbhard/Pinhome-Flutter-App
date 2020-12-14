@@ -1,30 +1,35 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_app_pinhome/api/api_announcement_service.dart';
 import 'package:flutter_app_pinhome/model/announsment.dart';
+import 'package:flutter_app_pinhome/model/personal_area_model.dart';
 import 'package:flutter_app_pinhome/pages/variants_exchange_page.dart';
 import 'package:flutter_app_pinhome/wigets/custom_dialog.dart';
 import 'package:hexcolor/hexcolor.dart';
 
-class AnnounsmentPage extends StatefulWidget {
+class ShowAnnounsmentPage extends StatefulWidget {
   final int id;
   final String title;
 
-  AnnounsmentPage({Key key, @required this.id, this.title}) : super(key: key);
+  ShowAnnounsmentPage({Key key, @required this.id, this.title})
+      : super(key: key);
 
   @override
-  _AnnounsmentPageState createState() => _AnnounsmentPageState();
+  _ShowAnnounsmentPageState createState() => _ShowAnnounsmentPageState();
 }
 
-class _AnnounsmentPageState extends State<AnnounsmentPage> {
+class _ShowAnnounsmentPageState extends State<ShowAnnounsmentPage> {
   Future<Announcement> model;
   AnnouncementService service;
   bool _free;
+  Future<PersonalAreaRequestModel> modelPerson;
 
   @override
   void initState() {
     super.initState();
     service = new AnnouncementService();
     model = service.getById(widget.id);
+
+    // loadImageFromPreferences();
   }
 
   @override
@@ -71,9 +76,7 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
                                         : "")),
                             TextBolt(text: "Местонахождение"),
                             TextRegular(text: snapshot.data.city),
-                            _variantsButton(),
-                            _editButtonField(),
-                            _deleteButton(snapshot.data.id)
+                            _exchangeButtonField(),
                           ],
                         ));
                       }
@@ -120,7 +123,7 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
     );
   }
 
-  Widget _editButtonField() {
+  Widget _exchangeButtonField() {
     return Container(
       alignment: Alignment.center,
       child: ButtonTheme(
@@ -131,7 +134,7 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
             color: Colors.amber[300],
             shape: RoundedRectangleBorder(
                 borderRadius: new BorderRadius.circular(10.0)),
-            child: Text('Редактировать',
+            child: Text('Обмен',
                 textDirection: TextDirection.ltr,
                 style: TextStyle(
                     decoration: TextDecoration.none,
@@ -141,32 +144,6 @@ class _AnnounsmentPageState extends State<AnnounsmentPage> {
                     fontWeight: FontWeight.w300)),
           )),
     );
-  }
-
-  Widget _deleteButton(int itemId) {
-    return Container(
-        alignment: Alignment.center,
-        child: ButtonTheme(
-            minWidth: 250,
-            height: 40,
-            child: RaisedButton(
-              // padding: EdgeInsets.all(50),
-              onPressed: () {
-                _createAlertDialog(context, itemId);
-              },
-              color: Colors.white,
-              shape: RoundedRectangleBorder(
-                  side: BorderSide(width: 3, color: Colors.amber[300]),
-                  borderRadius: new BorderRadius.circular(10.0)),
-              child: Text('Снять с публикации',
-                  textDirection: TextDirection.ltr,
-                  style: TextStyle(
-                      decoration: TextDecoration.none,
-                      color: Colors.black,
-                      fontSize: 16,
-                      fontFamily: 'Open Sans',
-                      fontWeight: FontWeight.w300)),
-            )));
   }
 }
 

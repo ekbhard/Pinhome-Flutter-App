@@ -33,6 +33,17 @@ class AuthService {
     }
   }
 
+  Future<int> logout() async {
+    String loginUrl = "/authorization/logout";
+    String value = await storage.read(key: "token");
+    Map<String, String> headers = {'x-access-token': value};
+    final response = await http.get(url + loginUrl, headers: headers);
+    if (response.statusCode == 200) {
+      storage.delete(key: "token");
+    }
+    return response.statusCode;
+  }
+
   Future<RegistrationResponseModel> registration(
       RegistrationRequestModel requestModel) async {
     String loginUrl = "/authorization/sign_up";
